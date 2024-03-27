@@ -1,0 +1,9 @@
+<!-- inherit from base.html-->
+{% extends "snowReview/base_template.html" %}
+
+<!-- add block content from html template -->
+{% block content %}
+    <h1>Welcome to the Home page! </h1>
+    <a class="btn btn-info" href="#">Snowboard Guide</a>
+    <a class="btn btn-info" href="{% url 'snowboard-list' %}">Snowboards</a>
+{% endblock %}

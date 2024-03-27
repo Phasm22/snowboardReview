@@ -1,0 +1,16 @@
+{% extends "snowReview/base_template.html" %}
+
+{% block content %}
+    <h1>Snowboards</h1>
+    <ul>
+    {% for snowboard in object_list %}
+        <li>
+            <a href="{{ snowboard.get_absolute_url }}">
+                {{ snowboard.name }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No snowboards available.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

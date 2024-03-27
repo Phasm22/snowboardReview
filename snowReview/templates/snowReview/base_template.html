@@ -8,22 +8,52 @@
   {% bootstrap_css %}
 
   {% bootstrap_javascript %}
-
   {% bootstrap_messages %}
-  <title>TheRealPowGuide</title
+  <title>TheRealPowGuide</title>
 
-   <title>TheRealPowGuide</title>
+  <style>
+    .navbar-nav .nav-link {
+      font-family: "Shadows Into Light", cursive;
+      font-weight: 600;
+      font-size: 26px;
+    }
+    .title {
+      font-family: "Shadows Into Light", cursive;
+      font-weight: 800;
+      font-style: normal;
+      font-size: 3.5em;
+    }
+
+    @media (min-width: 992px) { /* This is the breakpoint at which the navbar expands */
+      .navbar-nav {
+        flex-direction: row !important;
+        justify-content: space-around !important;
+        width: 100%;
+      }
+    }
+  </style>
+  
+  <!-- Add logo image before the title -->
+  <img src="{% static 'images/logo.png' %}">
+  <span class="title">TheRealPowGuide</span>
+  
+
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
  </head>
+
+
 
  <body>
    <div class="container-fluid">
 
      <!-- Navbar-->
-     <nav class="navbar navbar-expand-lg bg-body-tertiary">
+     <nav class="navbar-nav navbar-expand-lg bg-body-tertiary">
        {% comment %} <img src="{% static 'images/uccs_logo.gif' %}"> {% endcomment %}
        <div class="container-fluid">
          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,10 +62,10 @@
          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
            <div class="navbar-nav">
              <!--  {% url 'index' %}  is defined in url path to dynamically create url -->
-             <a class="nav-link active" aria-current="page" href="{% url 'index' %}">Home</a>
+             <a class="nav-link title" aria-current="page" href="{% url 'index' %}">Home</a>
               {% comment %} <a class="nav-link" href="{% url 'students' %}">Students</a> {% endcomment %}
-             <a class="nav-link" href="#">Menu 2</a>
-             <a class="nav-link" href="#">Menu 3</a>
+            <a class="nav-link" href="#">Guides</a>
+            <a class="nav-link" href="{% url 'snowboard-list' %}">Snowboards</a>
              {% if user.is_authenticated %}
              {% else %}
              {% endif %}
