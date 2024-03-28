@@ -7,8 +7,13 @@ from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.views.generic.edit import DeleteView
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import login
+from django.contrib.auth import logout
 from snowReview.forms import SnowboardForm
 from .models import *
+from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from django.contrib.auth import authenticate
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -19,11 +24,15 @@ def index(request):
 
 
 def home_view(request):
-    return render(request, 'snowReview/home.html')
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'snowReview/home.html', context)
 
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
@@ -35,7 +44,7 @@ def login_view(request):
                 messages.error(request,"Invalid username or password.")
         else:
             messages.error(request,"Invalid username or password.")
-    form = AuthenticationForm()
+    form = CustomAuthenticationForm()
     return render(request = request, template_name = "snowReview/login.html", context={"login_form":form})
 
 def logout_view(request):
@@ -57,8 +66,17 @@ def createSnowboard(request):
         form = SnowboardForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('snowboard-list')  # Redirect to the list  snowboards
+            return redirect('snowboard-list')
 
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     return render(request, 'snowReview/addBoard_form.html', context)
 
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # Redirect to the login page after successful registration
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

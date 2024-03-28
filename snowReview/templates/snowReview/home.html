@@ -1,16 +1,20 @@
-<!-- inherit from base.html-->
 {% extends "snowReview/base_template.html" %}
 
-<!-- add block content from html template -->
 {% block content %}
 <style>
     .center-text {
         text-align: center;
+        padding: 100px;
+    }
+    .btn-info {
+        font-size: 20px;  /* Adjust this value as needed */
+        padding: 15px 30px;  /* Adjust these values as needed */
     }
 </style>
 <h1 class="center-text">
     Welcome to the Home page! 
 </h1>
+
 <div class="center-text">
     <a class="btn btn-info" href="#">Snowboard Guide</a>
     <a class="btn btn-info" href="{% url 'snowboard-list' %}">Search</a>

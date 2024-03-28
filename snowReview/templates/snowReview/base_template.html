@@ -23,8 +23,31 @@
       font-style: normal;
       font-size: 3.5em;
     }
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+  }
+  .user-info p {
+    margin-right: 20px; 
+  }
+    .btn-info {
+        font-size: 20px;
+        padding: 15px 30px;
+    }
+  .btn-info {
+      font-size: 20px;
+      padding: 15px 30px;
+  }
 
-    @media (min-width: 992px) { /* This is the breakpoint at which the navbar expands */
+    .right-corner {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+  }
+
+    @media (min-width: 992px) {
       .navbar-nav {
         flex-direction: row !important;
         justify-content: space-around !important;
@@ -50,6 +73,17 @@
 
 
  <body>
+  <div class="right-corner">
+    {% if user.is_authenticated %}
+    <div class="user-info">
+        <p><strong> Hello, {{ user.username }}!</strong></p>
+        <a class="btn btn-info consistent-size" href="{% url 'logout_view' %}">Logout</a>
+    </div>
+{% else %}
+    <a class="btn btn-info consistent-size" href="{% url 'login' %}">Login</a>
+{% endif %}
+  </div>
+
    <div class="container-fluid">
 
      <!-- Navbar-->

@@ -1,0 +1,11 @@
+<!-- registration/register.html -->
+{% extends 'snowReview/base_template.html' %}
+
+{% block content %}
+    <h2>Register</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

@@ -25,20 +25,6 @@ django.setup()
 from django.conf import settings
 from snowReview.models import Snowboard, Terrain
 
-"""
-what we want to scape into the database
-    price = models.FloatField(default=0)
-    season = models.CharField(max_length=20, default='Unknown')
-    shape = models.CharField(max_length=20, choices=SHAPES, default=SHAPES[0][0])
-    profile = models.CharField(max_length=20, choices=PROFILES, default=PROFILES[0][0])
-    rider = models.CharField(max_length=20, choices=SKILL, default=SKILL[0][0])
-    flex = models.FloatField(default=0)
-    brand = models.CharField(max_length=20, default='Unknown')
-    name = models.CharField(max_length=20, default='Unknown')
-    desc = models.CharField(max_length=200, default='No description available')
-    image = models.ImageField(upload_to='snowboards/', null=True)
-    brand_image = models.ImageField(upload_to='brands/', null=True)
-"""
 def scrape_website(website):
     web = website
     # This is a simplified example. Replace with your actual scraping code.
