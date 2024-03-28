@@ -1,5 +1,12 @@
+# Tandon Jenkins
+# This program scrapes snowboard data from the evo.com website and saves it to the database.
+# It uses the requests and BeautifulSoup libraries to scrape the data and save the images.
+# The data is saved to the Snowboard model in the snowReview app.
+# The program prompts the user for the number of links to scrape and then scrapes the data from those links.
+# The scraped data includes the snowboard name, season, profile, shape, rider, flex rating, description, image, brand, and brand image.
+# The media files are saved to the 'media/snowboards' and 'media/brands' directories.
+
 import os
-from selenium import webdriver
 import django
 import requests
 import re
@@ -16,7 +23,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
 django.setup()
 
 from django.conf import settings
-from snowReview.models import Snowboard
+from snowReview.models import Snowboard, Terrain
 
 """
 what we want to scape into the database
@@ -45,7 +52,7 @@ def scrape_website(website):
         'shape': '.pdp-spec-list-item.spec-shape',  # Corrected CSS selector
         'rider': '.pdp-spec-list-item.spec-ability-level .pdp-spec-list-description',
         'flex': '.pdp-spec-list-item.spec-flex-rating .pdp-spec-list-description',
-        'desc': '.pdp-details-content p'
+        'desc': '.pdp-details-content p',
     }
 
     flex_rating_map = {
@@ -148,6 +155,11 @@ def scrape_website(website):
         
         brand_image_file = File(open(brand_image_path, 'rb'))
 
+        # terrain
+    terrain_elements = soup.select('.pdp-spec-list-item.spec-terrain .pdp-spec-list-description')
+    terrains = [element.get_text(strip=True) for element in terrain_elements if element]
+
+
     snowboard = Snowboard(
         name=name,
         season=season,
@@ -160,6 +172,13 @@ def scrape_website(website):
         image=image_file if image_url else None,  # Add the image file to the Snowboard instance
         brand_image=brand_image_file if brand_image_url else None
     )
+    snowboard.save()
+
+    # Associate the terrains with the snowboard
+    for terrain_name in terrains:
+        if terrain_name is not None:
+            terrain, created = Terrain.objects.get_or_create(name=terrain_name)
+            snowboard.terrain.add(terrain)
     snowboard.save()
 
 def get_links_from_user(num_links, url):

@@ -3,7 +3,16 @@
 
 <!-- add block content from html template -->
 {% block content %}
-    <h1>Welcome to the Home page! </h1>
+<style>
+    .center-text {
+        text-align: center;
+    }
+</style>
+<h1 class="center-text">
+    Welcome to the Home page! 
+</h1>
+<div class="center-text">
     <a class="btn btn-info" href="#">Snowboard Guide</a>
-    <a class="btn btn-info" href="{% url 'snowboard-list' %}">Snowboards</a>
+    <a class="btn btn-info" href="{% url 'snowboard-list' %}">Search</a>
+</div>
 {% endblock %}

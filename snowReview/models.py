@@ -26,6 +26,17 @@ class Review(models.Model):
 
     def get_absolute_url(self):
         return reverse('person-detail', args=[str(self.id)])
+class Terrain(models.Model):
+    TERRAIN_CHOICES = (
+        ('Freestyle', 'Freestyle'),
+        ('All-Mountain', 'All-Mountain'),
+        ('Freeride', 'Freeride'),
+        ('Powder', 'Powder'),
+    )
+    name = models.CharField(max_length=50, choices=TERRAIN_CHOICES)
+
+    def __str__(self):
+        return self.name
 
 # Snowboard objects
 class Snowboard(models.Model):
@@ -50,14 +61,16 @@ class Snowboard(models.Model):
         ('Hybrid Camber', 'Hybrid Camber'),
         ('Hybrid Rocker', 'Hybrid Rocker'),    
     )
+
     season = models.CharField(max_length=20, default='Unknown')
+    terrain = models.ManyToManyField(Terrain)
     shape = models.CharField(max_length=20, choices=SHAPES, default=SHAPES[0][0])
     profile = models.CharField(max_length=20, choices=PROFILES, default=PROFILES[0][0])
     rider = models.CharField(max_length=20, choices=SKILL, default=SKILL[0][0])
-    flex = models.FloatField(default=0)
+    flex = models.IntegerField(default=0)
     brand = models.CharField(max_length=20, default='Unknown')
-    name = models.CharField(max_length=20, default='Unknown')
-    desc = models.CharField(max_length=200, default='No description available')
+    name = models.CharField(max_length=50, default='Unknown')
+    desc = models.CharField(max_length=500, default='No description available')
     image = models.ImageField(upload_to='snowboards/', null=True)
     brand_image = models.ImageField(upload_to='brands/', null=True)
     # need to add image, rider, and brand image

@@ -44,24 +44,7 @@ def logout_view(request):
 
 class SnowboardDetailView(DetailView):  # new line
     model = Snowboard  # new line
-    template_name = 'snowReview/snowboard_detail.html'
-    
-    def get(self, request, *args, **kwargs):
-        self.brand = kwargs.get('brand')
-        self.name = kwargs.get('name')
-        self.shape = kwargs.get('shape')
-        self.profile = kwargs.get('profile')
-        return super().get(request, *args, **kwargs)
 
-    def get_object(self, queryset=None):
-        return get_object_or_404(Snowboard, brand=self.brand, name=self.name, shape=self.shape, profile=self.profile)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['action'] = 'Update'
-        context['object_type'] = 'Snowboard'
-        context['Projects'] = Snowboard.objects.filter(Snowboard=self.object)
-        return context
 
 class SnowboardListView(ListView):
     model = Snowboard

@@ -1,5 +1,129 @@
-{% extends 'portfolio_app/base_template.html' %}
-
+{% extends 'snowReview/base_template.html' %}
+{% load multiply %}
 {% block content %}
-<h1>hey details</h1>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+.board-title {
+    font-family: "Shadows Into Light", cursive;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 2.5em;
+    }
+
+    .skill-icon {
+        font-size: 2em;
+    }
+    .progress-container {
+        width: 50%;
+        line-height: 50%;
+
+    }
+
+    .progress-label-start {
+        position: relative;
+        left: 0;
+        top: 5px; 
+    }
+
+    .progress-label-end {
+        position: relative;
+        right: 0;
+        top: 5px; 
+        text-align: right;
+    }
+    .progress-bar {
+        background-color: #d67609;
+    }
+
+    .progress-label-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ffffff;
+        opacity: 0.7;
+    }
+    .flex-container {
+        display: flex;
+        align-items: center;
+    }
+    
+    .flex-label {
+        margin-right: 10px; 
+    }
+    .back-button {
+        background-color: black;
+        border-color: black;
+        outline: none !important;
+    }
+    .back-button:hover, .back-button:focus, .back-button:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none !important;
+    }
+</style>
+<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">Back to list</a><div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title board-title">{{ snowboard.name }}</h5>
+        <div class="row">
+            <div class="col-md-6 pt-5" >
+                <p><strong>Season:</strong> {{ snowboard.season }}</p>
+                <p><strong>Shape:</strong> {{ snowboard.shape }}</p>
+                <p><strong>Terrain:</strong> 
+                    {% for terrain in snowboard.terrain.all %}
+                        {{ terrain.name }}
+                    {% empty %}
+                        No terrain specified
+                    {% endfor %}
+                </p>                
+                <p><strong>Profile:</strong> {{ snowboard.profile }}</p>
+                <p><strong>Rider:</strong> 
+                {% if snowboard.rider == "Advanced" %}
+                <span class="d-inline-block border rounded py-2 px-3 text-center">
+                    <i class="bi bi-suit-diamond-fill text-dark skill-icon"></i><br>
+                    {{ snowboard.rider }}
+                </span>
+                {% elif snowboard.rider == "Intermediate" %}
+                    <span class="d-inline-block border rounded py-2 px-3 text-center">
+                        <i class="bi bi-square-fill text-primary skill-icon"></i><br>
+                        {{ snowboard.rider }}
+                    </span>
+                {% elif snowboard.rider == "Beginner" %}
+                    <span class="d-inline-block border rounded py-2 px-3 text-center">
+                        <i class="bi bi-circle-fill text-success skill-icon"></i><br>
+                        {{ snowboard.rider }}
+                    </span>
+                {% else %}
+                    <span>{{ snowboard.rider }}</span>
+                {% endif %}
+                </p >
+                <div class="flex-container">
+                    <div class="flex-label"><strong>Flex:</strong></div>
+                    <div class="progress-container">
+                        <div class="progress position-relative">
+                            <div class="progress-bar" role="progressbar" style="width: {{ snowboard.flex|multiply:"10" }}%;" aria-valuenow="{{ snowboard.flex }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            <div class="progress-label-center" style="padding-top: 4px;"><strong>{{ snowboard.flex }}/10</strong></div>
+                        </div>
+                        <div class="progress-label-start">Soft</div>
+                        <div class="progress-label-end">Firm</div>
+                    </div>
+                </div>
+                {% if snowboard.brand_image %}
+                    <div style="padding-top: 10px;">
+                        <strong>Brand:</strong> <img src="{{ snowboard.brand_image.url }}" class="img-fluid" alt="{{ snowboard.brand }}">
+                    </div>
+                {% else %}
+                    <p>No image available</p>
+                {% endif %}
+                <p><strong>Description:</strong> {{ snowboard.desc }}</p>
+            </div>
+            <div class="col-md-6">
+                {% if snowboard.image %}
+                    <img src="{{ snowboard.image.url }}" class="img-fluid" alt="{{ snowboard.name }}">
+                {% else %}
+                    <p>No image available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
