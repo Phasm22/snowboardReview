@@ -1,0 +1,36 @@
+from selenium import webdriver
+from bs4 import BeautifulSoup
+
+web = "https://www.evo.com/snowboards/yes-typo-snowboard#image=237568/1018486/yes-typo-snowboard-2024-.jpg"
+# Initialize a new Firefox browser
+driver = webdriver.Firefox()
+
+# Navigate to the page
+driver.get(web)
+
+# Get the page source and parse it with BeautifulSoup
+soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+# Define a dictionary of fields to scrape
+fields = {
+    'name': 'h1.pdp-header-title',
+    'price': '.pdp-price-regular.pdp-price-display.no-wrap'  # Add the price field
+    # Add other fields here, in the format 'field_name': 'css_selector'
+}
+
+# Initialize an empty dictionary to store the scraped data
+data = {}
+
+# Loop over the fields dictionary
+for field, selector in fields.items():
+    # Use select_one() to find the first element that matches the selector
+    element = soup.select_one(selector)
+    # If an element was found, get its text and store it in the data dictionary
+    if element:
+        text = element.text
+        data[field] = text
+
+print(data)
+
+# Close the browser
+driver.quit()

@@ -59,6 +59,8 @@ class Snowboard(models.Model):
     brand = models.CharField(max_length=20, default='Unknown')
     name = models.CharField(max_length=20, default='Unknown')
     desc = models.CharField(max_length=200, default='No description available')
+    image = models.ImageField(upload_to='snowboards/', null=True)
+    brand_image = models.ImageField(upload_to='brands/', null=True)
     # need to add image, rider, and brand image
 
     def __str__(self):

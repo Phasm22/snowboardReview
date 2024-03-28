@@ -1,5 +1,8 @@
-from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+from snowReview.admin import admin_site 
+from django.urls import path, include
 
 urlpatterns = [
 path('login/', views.login_view, name='login'),
@@ -12,4 +15,5 @@ path('snowboard/<int:pk>/', views.SnowboardDetailView.as_view(), name='snowboard
 # add a snowboard
 path('snowboard/add/', views.createSnowboard, name='snowboard-add'),
 #path('snowboard/<int:pk>/update/', views.updateSnowboard, name='snowboard-update'),
-]
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

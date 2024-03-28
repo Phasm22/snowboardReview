@@ -2,15 +2,37 @@
 
 {% block content %}
     <h1>Snowboards</h1>
-    <ul>
+    <style>
+    .snowboard-image {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+    }
+    .card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+    }
+    </style>
+    <div class="row">
     {% for snowboard in object_list %}
-        <li>
-            <a href="{{ snowboard.get_absolute_url }}">
-                {{ snowboard.name }}
-            </a>
-        </li>
+        <div class="col-md-4">
+            <div class="card mb-4" style="width: 18rem;">
+                <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ snowboard.get_absolute_url }}">
+                            {{ snowboard.name }}
+                        </a>
+                    </h5>
+                </div>
+            </div>
+        </div>
     {% empty %}
-        <li>No snowboards available.</li>
+        <div class="col-12">
+            <p>No snowboards available.</p>
+        </div>
     {% endfor %}
-    </ul>
+    </div>
 {% endblock %}
