@@ -158,6 +158,10 @@ cython_debug/
 *.db-journal
 *.sql
 
+# media files
+*.jpg
+*.jpeg
+*.gif
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

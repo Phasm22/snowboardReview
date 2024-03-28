@@ -6,6 +6,8 @@ import re
 from bs4 import BeautifulSoup
 import sys
 from django.core.files import File
+import json
+from faker import Faker
 
 
 sys.path.insert(0, '/home/code/software/snowboardReview/')
@@ -42,12 +44,15 @@ def scrape_website(website):
         'profile': '.pdp-feature-description em',  # Add the shape field'
         'shape': '.pdp-spec-list-item.spec-shape',  # Corrected CSS selector
         'rider': '.pdp-spec-list-item.spec-ability-level .pdp-spec-list-description',
-        'flex': '.pdp-feature-description em:contains("Flex Rating") + span',
+        'flex': '.pdp-spec-list-item.spec-flex-rating .pdp-spec-list-description',
         'desc': '.pdp-details-content p'
+    }
 
-
-        # Add other fields here, in the format 'fieldexit
-        # _name': 'css_selector'
+    flex_rating_map = {
+    'soft': 3,  # 1-3
+    'medium': 6,  # 4-6
+    'stiff': 8,  # 7-8
+    'very stiff': 10  # 9-10
     }
 
     # Initialize an empty dictionary to store the scraped data
@@ -59,7 +64,7 @@ def scrape_website(website):
         element = soup.select_one(selector)
         # If an element was found, get its text and store it in the data dictionary
         if element:
-            text = element.text
+            text = element.get_text(strip=True)
             # check shape definitions
             # CamRock = Hybrid Camber
             if text == "CamRock":
@@ -77,11 +82,7 @@ def scrape_website(website):
             
                     # If the field is 'flex', find the first number in the string
             if field == 'flex':
-                match = re.search(r'\d+', text)
-                if match:
-                    text = match.group()
-                else:
-                    text = '0'
+                text = flex_rating_map.get(text.lower(), 0)  # Default to 0 if the flex rating is not recognized
 
             data[field] = text
 
@@ -101,6 +102,7 @@ def scrape_website(website):
     print(f"Flex: {data.get('flex', 'Unknown')}")
     print(f"Description: {data.get('desc', 'No description available')}")
 
+
     # Extract the image URL
     image_element = soup.select_one('.js-pdp-hero-image-container .js-pdp-image-asset.active')
     image_url = image_element['src'] if image_element else None
@@ -109,14 +111,43 @@ def scrape_website(website):
     if image_url:
         response = requests.get(image_url)
         image_name = image_url.split("/")[-1]  # Use the last part of the URL as the image name
-        image_path = os.path.join('media/snowboards', image_name)  # Use a path relative to your Django project's root
+        image_dir = ('media/snowboards')
+        print(image_dir)
+        image_path = (image_dir + image_name)  # This is an absolute path
+        print(image_path)
+
+        # Create the directory if it doesn't exist
+        os.makedirs(image_dir, exist_ok=True)
 
         with open(image_path, 'wb') as f:
             f.write(response.content)
+        
+        image_file = File(open(image_path, 'rb'))  # Use the absolute path to open the file
 
-        image_file = File(open(image_path, 'rb'))
 
-    # Create a new Snowboard instance and save it
+    # brand image
+    brand_image_element = soup.select_one('.pdp-details-group .pdp-description-brand-logo')
+    brand_image_url = brand_image_element['src'] if brand_image_element else None
+
+    # Add the protocol to the URL
+    if brand_image_url and brand_image_url.startswith('//'):
+        brand_image_url = 'https:' + brand_image_url
+
+    # Download the image and save it to the specified directory
+    if brand_image_url:
+        response = requests.get(brand_image_url)
+        brand_image_name = brand_image_url.split("/")[-1]
+        brand_dir = ('media/brands')
+        brand_image_path = (brand_dir + brand_image_name)
+
+        # Create the directory if it doesn't exist
+        os.makedirs(brand_dir, exist_ok=True)
+
+        with open(brand_image_path, 'wb') as f:
+            f.write(response.content)
+        
+        brand_image_file = File(open(brand_image_path, 'rb'))
+
     snowboard = Snowboard(
         name=name,
         season=season,
@@ -125,14 +156,20 @@ def scrape_website(website):
         rider=data.get('rider', 'Unknown'),
         flex=data.get('flex', '0'),
         desc=data.get('desc', 'No description available'),
-        brand=brand, price=0,
-        image=image_file if image_url else None  # Add the image file to the Snowboard instance
+        brand=brand,
+        image=image_file if image_url else None,  # Add the image file to the Snowboard instance
+        brand_image=brand_image_file if brand_image_url else None
     )
     snowboard.save()
 
-
-
 def get_links_from_user(num_links, url):
+    # Load the product IDs from the file
+    try:
+        with open('product_ids.json', 'r') as f:
+            product_ids = set(json.load(f))
+    except FileNotFoundError:
+        product_ids = set()
+
     # Send a GET request to the URL
     response = requests.get(url)
     # Parse the HTML content of the page with BeautifulSoup
@@ -140,9 +177,6 @@ def get_links_from_user(num_links, url):
 
     # Find all the divs with the specified class
     divs = soup.find_all('div', {'class': 'product-thumb js-product-thumb'})
-
-    # Initialize an empty set to store the product IDs
-    product_ids = set()
 
     # Initialize an empty list to store the links
     links = []
@@ -165,7 +199,12 @@ def get_links_from_user(num_links, url):
         if len(links) >= num_links:
             break
 
+    # Save the product IDs to the file
+    with open('product_ids.json', 'w') as f:
+        json.dump(list(product_ids), f)
+
     return links
+
 if __name__ == "__main__":
     # URL of the page to scrape
     url = "https://www.evo.com/shop/snowboard/snowboards/all-mountain/mens"

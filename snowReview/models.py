@@ -50,7 +50,6 @@ class Snowboard(models.Model):
         ('Hybrid Camber', 'Hybrid Camber'),
         ('Hybrid Rocker', 'Hybrid Rocker'),    
     )
-    price = models.FloatField(default=0)
     season = models.CharField(max_length=20, default='Unknown')
     shape = models.CharField(max_length=20, choices=SHAPES, default=SHAPES[0][0])
     profile = models.CharField(max_length=20, choices=PROFILES, default=PROFILES[0][0])
