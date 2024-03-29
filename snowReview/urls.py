@@ -29,6 +29,11 @@ path('snowboard/add/', views.createSnowboard, name='snowboard-add'),
 
 # Guide
 path('guide/', views.GuideView.as_view(), name='guide'),
-#path('snowboard/<int:pk>/update/', views.updateSnowboard, name='snowboard-update'),
+
+# Reviews
+path('snowboard/<int:snowboard_id>/review/', views.add_review, name='add-review'),
+
+# Comments
+path('snowboard/<int:snowboard_id>/add_comment/', views.add_comment, name='add-comment'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

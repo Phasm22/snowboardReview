@@ -13,9 +13,9 @@ from django.contrib.auth import login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
 from .forms import GuideForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
-from snowReview.forms import SnowboardForm
-from .models import *
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
+from snowReview.forms import SnowboardForm, CommentForm
+from .models import Snowboard, Profile, Review
 
 # Create your views here.
 def index(request):
@@ -67,6 +67,15 @@ class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        # only show the profile if the user is authenticated
+        if self.request.user.is_authenticated:
+            context['profile'], created = Profile.objects.get_or_create(user=self.request.user)
+        return context
+    
 # using the built in django form view to filter the snowboards
 class GuideView(FormView):
     template_name = 'snowReview/Guide.html'
@@ -84,14 +93,11 @@ def snowboard_view(request):
         # filter the snowboards based on the form data
         if form.cleaned_data['rider']:
             snowboards = snowboards.filter(rider=str(form.cleaned_data['rider']))  # Ensure the value is a string
-            print(snowboards.query)
         if form.cleaned_data['terrain']:
             # Ensure each value in the list is a string
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
             # filter by terrains and distinct to avoid duplicates
             snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
-            print(terrains)
-            print(snowboards.query)
     else:
         # if there are any errors in the form
         print(form.errors)
@@ -120,3 +126,36 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+# For adding comments
+def add_comment(request, snowboard_id):
+    # to link the comment to the snowboard
+    snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.snowboard = snowboard
+            comment.save()
+            # to get location and confirmation of message
+            messages.success(request, 'Comment added.')
+
+            return redirect('snowboard-detail', pk=snowboard.id)
+    else:
+        form = CommentForm()
+    return render(request, 'snowReview/snowboard_detail.html', {'snowboard': snowboard, 'form': form})
+
+
+def add_review(request, snowboard_id):
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.snowboard = Snowboard.objects.get(pk=snowboard_id)
+            review.reviewer = request.user.profile
+            review.save()
+            return redirect('snowboard-detail', pk=snowboard_id)
+    else:
+        form = ReviewForm()
+    return render(request, 'snowReview/add_review.html', {'form': form})

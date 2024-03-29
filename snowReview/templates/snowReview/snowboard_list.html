@@ -17,8 +17,8 @@
     .card {
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 10px;
+        align-items: left;
+        padding: 20px;
     }
     .center-text {
         text-align: center;
@@ -48,10 +48,26 @@
         visibility: visible;
         opacity: 1;
     }
+
+    .back-button {
+    background-color: black;
+    border-color: black;
+    outline: none !important;
+    }
+    .back-button:hover, .back-button:focus, .back-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none !important;
+    }
+
     </style>
     <h1 class="title">
         Snowboards
     </h1>
+    {% if user.is_authenticated and profile.is_reviewer %}
+        <a href="{% url 'snowboard-add' %}" class="btn btn-primary mb-3 text-left back-button">Add Snowboard</a>
+    {% endif %}
+
     <div class="card mb-4 bg-light">
         <div class="row">
             {% for snowboard in object_list %}

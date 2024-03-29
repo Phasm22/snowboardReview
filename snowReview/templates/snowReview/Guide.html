@@ -35,8 +35,8 @@
         {% csrf_token %}
         
         <div style="display: flex; align-items: center;">
-            <span style="margin-right: 10px;" class="subtitle">Skill:</span>
-            <div class="btn-group" data-toggle="buttons" style="padding: 10px;">
+            <span style="margin-right: 10px; padding-left: 20px;" class="subtitle">Skill:</span>
+            <div class="btn-group" data-toggle="buttons" style="padding: 40px;">
                 {% for choice in form.rider.field.choices %}  <!-- Changed 'skill' to 'rider' -->
                     <label class="btn {% if choice.0 in form.rider.value %}active{% endif %}">  <!-- Changed 'skill' to 'rider' -->
                         <input type="radio" name="{{ form.rider.name }}" id="{{ form.rider.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.rider.value %}checked{% endif %}>  <!-- Changed 'skill' to 'rider' -->
@@ -50,7 +50,7 @@
         {{ form.profile.as_p }}
 
     <div style="display: flex; align-items: center;">
-        <span style="margin-right: 10px;" class="subtitle">Terrain:</span>
+        <span style="margin-right: 10px; padding-left: 20px;" class="subtitle">Terrain:</span>
         <div class="btn-group" data-toggle="buttons">
             {% for choice in form.terrain.field.choices %}
                 <label class="btn {% if choice.0 in form.terrain.value %}active{% endif %}">
@@ -60,7 +60,10 @@
             {% endfor %}
         </div>
     </div>
-        <button type="submit">Submit</button>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary mb-3 mt-3">Search</button>
+    </div>
+        
     </form>
 </div>
 {% endblock %}

@@ -23,4 +23,8 @@ class ReviewsAdmin(admin.ModelAdmin):
 admin_site.register(Review, ReviewsAdmin)
 
 admin_site.register(Snowboard)
-admin_site.register(Comment)
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('comment_text', 'user', 'snowboard')
+
+admin_site.register(Comment, CommentAdmin)

@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Snowboard, Terrain
+from .models import Snowboard, Terrain, Comment, Review
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
@@ -24,3 +24,17 @@ class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
         model = User
         fields = ('username', 'password')
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['comment_text']
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['boardSize', 'date', 'conditions', 'snow24', 'snow7', 'riderHeight', 'riderWeight']
+        # For pop up calender
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }

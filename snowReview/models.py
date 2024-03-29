@@ -98,12 +98,13 @@ class Profile(models.Model):
 
 class Comment(models.Model):
     # one to many relationships with snowboard and profile
+    # comment section will be deleted if snowboard or profile is deleted
     snowboard = models.ForeignKey(Snowboard, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment_text = models.TextField(default="Add text here")  # add a field to store the comment text
 
     def __str__(self):
-        return f"{self.profile.user.username}'s comment on {self.snowboard.name}"
+        return f"{self.user.username}'s comment on {self.snowboard.name}"
 
     def get_absolute_url(self):
         return reverse('comment-detail', args=[str(self.id)])

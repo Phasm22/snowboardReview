@@ -1,0 +1,3 @@
+Stakeholders:
+Reviewers (people reviewing boards and posting their reviews)
+Users (People reading reviews and gaining information from the listings)
