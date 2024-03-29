@@ -11,6 +11,8 @@
     .btn-group .btn {
         margin: 100px;
         padding: 100px; 
+        
+
     }
 
 </style>
@@ -29,15 +31,15 @@
 </div>
 <div class="card mb-2 bg-light">
 
-    <form method="post">
+    <form method="get" action="{% url 'snowboard' %}">
         {% csrf_token %}
         
         <div style="display: flex; align-items: center;">
             <span style="margin-right: 10px;" class="subtitle">Skill:</span>
             <div class="btn-group" data-toggle="buttons" style="padding: 10px;">
-                {% for choice in form.skill.field.choices %}
-                    <label class="btn btn-primary {% if choice.0 in form.skill.value %}active{% endif %}">
-                        <input type="radio" name="{{ form.skill.name }}" id="{{ form.skill.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.skill.value %}checked{% endif %}>
+                {% for choice in form.rider.field.choices %}  <!-- Changed 'skill' to 'rider' -->
+                    <label class="btn {% if choice.0 in form.rider.value %}active{% endif %}">  <!-- Changed 'skill' to 'rider' -->
+                        <input type="radio" name="{{ form.rider.name }}" id="{{ form.rider.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.rider.value %}checked{% endif %}>  <!-- Changed 'skill' to 'rider' -->
                         {{ choice.1 }}
                     </label>
                 {% endfor %}
@@ -51,7 +53,7 @@
         <span style="margin-right: 10px;" class="subtitle">Terrain:</span>
         <div class="btn-group" data-toggle="buttons">
             {% for choice in form.terrain.field.choices %}
-                <label class="btn btn-primary {% if choice.0 in form.terrain.value %}active{% endif %}">
+                <label class="btn {% if choice.0 in form.terrain.value %}active{% endif %}">
                     <input type="checkbox" name="{{ form.terrain.name }}" id="{{ form.terrain.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.terrain.value %}checked{% endif %}>
                     {{ choice.1 }}
                 </label>

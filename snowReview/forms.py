@@ -15,11 +15,10 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
 
 class GuideForm(forms.Form):
-    skill = forms.ChoiceField(choices=Snowboard.SKILL, widget=forms.RadioSelect)
-    # can select more than one shape
-    shape = forms.ChoiceField(choices=Snowboard.SHAPES, widget=forms.RadioSelect)
-    profile = forms.ChoiceField(choices=Snowboard.PROFILES)
-    terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, widget=forms.CheckboxSelectMultiple)
+    rider = forms.ChoiceField(choices=Snowboard.SKILL, required=False)
+    terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=False)
+    shape = forms.ChoiceField(choices=Snowboard.SHAPES, required=False)  # Changed 'SHAPE_CHOICES' to 'Snowboard.SHAPES'
+    profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=False)  # Changed 'PROFILE_CHOICES' to 'Snowboard.PROFILES'
 
 class CustomAuthenticationForm(AuthenticationForm):
     class Meta:

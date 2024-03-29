@@ -1,7 +1,8 @@
-{% extends "snowReview/base_template.html" %}
+{% extends 'snowReview/base_template.html' %}
+{% load static %}
 
 {% block content %}
-    <style>
+<style>
     .snowboard-image {
         width: 250px;
         height: 250px;
@@ -49,12 +50,15 @@
         opacity: 1;
     }
     </style>
+
     <h1 class="title">
         Snowboards
     </h1>
     <div class="card mb-4 bg-light">
         <div class="row">
-            {% for snowboard in object_list %}
+
+            {% if snowboards %}
+                {% for snowboard in snowboards %}
                 <div class="col-md-4 mx-auto">
                     <div class="card mb-4 bg-white" style="width: 18rem;">
                         <div class="tooltip-container">
@@ -63,11 +67,11 @@
                             </a>
                             <div class="tooltip-text">
                                 Shape: {{ snowboard.shape }}<br>
-                                Skill: {{ snowboard.rider }}<br>
+                                Profile: {{ snowboard.profile }}<br>
                             </div>
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title center-text">
+                            <h5 class="card-title center text">
                                 <a href="{{ snowboard.get_absolute_url }}">
                                     {{ snowboard.name }}
                                 </a>
@@ -75,11 +79,10 @@
                         </div>
                     </div>
                 </div>
-            {% empty %}
-                <div class="col-md-12">
-                    <p>No snowboards available.</p>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <p>No snowboards found.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

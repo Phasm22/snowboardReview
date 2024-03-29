@@ -1,9 +1,11 @@
 from . import views
+from .views import snowboard_view
 from django.conf import settings
 from django.conf.urls.static import static
 from snowReview.admin import admin_site 
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
+
 
 urlpatterns = [
 # Auth urls
@@ -18,7 +20,8 @@ path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name=
 path('', views.home_view, name='index'),
 
 # snowboard urls
-path('snowboard/', views.SnowboardListView.as_view(), name='snowboard-list'),
+path('snowboard/', snowboard_view, name='snowboard'),
+path('snowboard-list/', views.SnowboardListView.as_view(), name='snowboard-list'),
 path('snowboard/<int:pk>/', views.SnowboardDetailView.as_view(), name='snowboard-detail'),
 
 # add a snowboard

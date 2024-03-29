@@ -87,6 +87,11 @@ def scrape_website(website):
     # brand is just first word of name up until first whitespace
     brand = name.split()[0] if name else 'Unknown'
 
+    # check if advanced is being used in the rider
+    if data.get('rider', 'Unknown') == "Advanced":
+        # set to expert
+        data['rider'] = "Expert"
+
     # Print the name and season
     print(f"Name: {name}")
     print(f"Brand: {brand}")
