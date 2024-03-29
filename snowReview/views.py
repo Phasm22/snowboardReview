@@ -2,10 +2,10 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.http import HttpResponse
 from django.urls import reverse_lazy
+from django.db.models import Q
+
 from django.views.generic import DetailView
 from django.views.generic import ListView
-from django.views.generic.edit import UpdateView
-from django.views.generic.edit import DeleteView
 from django.views.generic.edit import FormView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
@@ -24,14 +24,17 @@ def index(request):
     print(snowboards)
     return render(request, 'snowReview/home.html', {'snowboards': snowboards})
 
-
+# Hope page view
 def home_view(request):
+    # for user to see their name
     context = {
         'user': request.user,
     }
     return render(request, 'snowReview/home.html', context)
 
+# login page
 def login_view(request):
+    # using djangos built in login form
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
 
@@ -47,40 +50,50 @@ def login_view(request):
         else:
             messages.error(request,"Invalid username or password.")
     form = CustomAuthenticationForm()
+    # render the login page with the form
     return render(request = request, template_name = "snowReview/login.html", context={"login_form":form})
 
+# logout view to log out the user and redirect to the home page
 def logout_view(request):
     logout(request)
     return redirect('home_view')
 
-class SnowboardDetailView(DetailView):  # new line
-    model = Snowboard  # new line
+# using the built in django detail view to show the snowboard details
+class SnowboardDetailView(DetailView):
+    model = Snowboard
 
-
+# using the built in django update view to update the snowboard details
 class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
 
+# using the built in django form view to filter the snowboards
 class GuideView(FormView):
     template_name = 'snowReview/Guide.html'
     form_class = GuideForm
 
+# filtered snowboard view
 def snowboard_view(request):
+    # get the form
     form = GuideForm(request.GET)
 
+    # get all the snowboards
     snowboards = Snowboard.objects.all()
 
     if form.is_valid():
+        # filter the snowboards based on the form data
         if form.cleaned_data['rider']:
             snowboards = snowboards.filter(rider=str(form.cleaned_data['rider']))  # Ensure the value is a string
-
+            print(snowboards.query)
         if form.cleaned_data['terrain']:
             # Ensure each value in the list is a string
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
-            snowboards = snowboards.filter(terrain__name__in=terrains)
-
-        print(snowboards)
+            # filter by terrains and distinct to avoid duplicates
+            snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
+            print(terrains)
+            print(snowboards.query)
     else:
+        # if there are any errors in the form
         print(form.errors)
 
     return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': snowboards})
@@ -97,6 +110,7 @@ def createSnowboard(request):
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     return render(request, 'snowReview/addBoard_form.html', context)
 
+# for creating a user account
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)

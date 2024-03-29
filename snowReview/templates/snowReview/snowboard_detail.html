@@ -107,12 +107,18 @@
                         <div class="progress-label-end">Firm</div>
                     </div>
                 </div>
+                <!-- size -->
+                <p style="padding-top: 14px;"><strong>Sizes:</strong> 
+                {% for size in snowboard.sizes.all %}
+                    {{ size.size }}
+                {% endfor %}
+                </p>
+                
                 {% if snowboard.brand_image %}
-                    <div style="padding-top: 10px;">
+                    <div>
                         <strong>Brand:</strong> <img src="{{ snowboard.brand_image.url }}" class="img-fluid" alt="{{ snowboard.brand }}">
                     </div>
                 {% else %}
-                    <p>No image available</p>
                 {% endif %}
                 <p><strong>Description:</strong> {{ snowboard.desc }}</p>
             </div>

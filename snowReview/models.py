@@ -38,6 +38,10 @@ class Terrain(models.Model):
     def __str__(self):
         return self.name
 
+# Size of snowboards
+class Size(models.Model):
+    # 4 for wide snowboard too, ex. 155W or 155MW
+    size = models.CharField(max_length=5, null=True, blank=True)
 # Snowboard objects
 class Snowboard(models.Model):
     SKILL = (
@@ -67,6 +71,7 @@ class Snowboard(models.Model):
     shape = models.CharField(max_length=20, choices=SHAPES, default=SHAPES[0][0])
     profile = models.CharField(max_length=20, choices=PROFILES, default=PROFILES[0][0])
     rider = models.CharField(max_length=20, choices=SKILL, default=SKILL[0][0])
+    sizes = models.ManyToManyField(Size)
     flex = models.IntegerField(default=0)
     brand = models.CharField(max_length=20, default='Unknown')
     name = models.CharField(max_length=50, default='Unknown')

@@ -23,7 +23,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
 django.setup()
 
 from django.conf import settings
-from snowReview.models import Snowboard, Terrain
+from snowReview.models import Snowboard, Terrain, Size
 
 def scrape_website(website):
     web = website
@@ -92,12 +92,21 @@ def scrape_website(website):
         # set to expert
         data['rider'] = "Expert"
 
+
+    # get the sizes
+    sizes = []
+    for label in soup.find_all('label', {'class': 'pdp-selection-label'}):
+        size = label.find('span', {'class': 'pdp-selection-text pdp-selector'}).get('title')
+        size = size.replace('Select "', '').replace('"', '')  # Strip unnecessary parts
+        sizes.append(size)
+
     # Print the name and season
     print(f"Name: {name}")
     print(f"Brand: {brand}")
     print(f"Season: {season}")
     print(f"Profile: {data.get('profile', 'Unknown')}")
     print(f"Shape: {data.get('shape', 'Unknown')}")
+    print(f"Sizes: {sizes}")
     print(f"Rider: {data.get('rider', 'Unknown')}")
     print(f"Flex: {data.get('flex', 'Unknown')}")
     print(f"Description: {data.get('desc', 'No description available')}")
@@ -150,25 +159,35 @@ def scrape_website(website):
 
         # terrain
     terrain_elements = soup.select('.pdp-spec-list-item.spec-terrain .pdp-spec-list-description')
-    terrains = [element.get_text(strip=True) for element in terrain_elements if element]
+    terrains = [terrain for element in terrain_elements if element for terrain in element.get_text(strip=True).split(', ')]
+    print(terrains)
 
-
-    snowboard = Snowboard(
+    # to avoid duplicates
+    snowboard, created = Snowboard.objects.get_or_create(
         name=name,
-        season=season,
-        profile=data.get('profile', 'Unknown'),
-        shape=data.get('shape', 'Unknown'),
-        rider=data.get('rider', 'Unknown'),
-        flex=data.get('flex', '0'),
-        desc=data.get('desc', 'No description available'),
-        brand=brand,
-        image=image_file if image_url else None,  # Add the image file to the Snowboard instance
-        brand_image=brand_image_file if brand_image_url else None
+        defaults={
+            'season': season,
+            'profile': data.get('profile', 'Unknown'),
+            'shape': data.get('shape', 'Unknown'),
+            'rider': data.get('rider', 'Unknown'),
+            'flex': data.get('flex', '0'),
+            'desc': data.get('desc', 'No description available'),
+            'brand': brand,
+            'image': image_file if image_url else None,  # Add the image file to the Snowboard instance
+            'brand_image': brand_image_file if brand_image_url else None
+        }
     )
     snowboard.save()
 
+    # Associate the sizes with the snowboard
+    for size_name in sizes:
+        if size_name is not None:
+            size, created = Size.objects.get_or_create(size=size_name)
+            snowboard.sizes.add(size)
+
     # Associate the terrains with the snowboard
     for terrain_name in terrains:
+        print(terrain_name)
         if terrain_name is not None:
             terrain, created = Terrain.objects.get_or_create(name=terrain_name)
             snowboard.terrain.add(terrain)
