@@ -52,7 +52,6 @@
     <h1 class="title">
         Snowboards
     </h1>
-
     <div class="card mb-4 bg-light">
         <div class="row">
             {% for snowboard in object_list %}
@@ -75,6 +74,10 @@
                             </h5>
                         </div>
                     </div>
+                </div>
+            {% empty %}
+                <div class="col-md-12">
+                    <p>No snowboards available.</p>
                 </div>
             {% endfor %}
         </div>

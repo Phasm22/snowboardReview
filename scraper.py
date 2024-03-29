@@ -79,9 +79,11 @@ def scrape_website(website):
 
             data[field] = text
 
-        # Extract the season from the name
+
+    # Extract the season from the name
     name = data.get('name', 'Unknown')
-    season = name.split()[-1] if name else 'Unknown'
+    match = re.search(r'\b\d{4}\b', name)
+    season = match.group() if match else 'Unknown'
     # brand is just first word of name up until first whitespace
     brand = name.split()[0] if name else 'Unknown'
 

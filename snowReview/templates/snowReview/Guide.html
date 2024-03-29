@@ -1,0 +1,64 @@
+{% extends "snowReview/base_template.html" %}
+{% load static %}
+
+<style>
+    .card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; 
+    }
+    .btn-group .btn {
+        margin: 100px;
+        padding: 100px; 
+    }
+
+</style>
+
+
+{% block content %}
+
+<div class="card mb-2 bg-light">
+
+    <h1 class="title container text-center">
+        Snowboard Guide
+        </h1>
+    <p class="text-center">
+        This guide will help you filter for boards that meet your specifications then you can look at the various boards that meet your criteria.
+    </p>
+</div>
+<div class="card mb-2 bg-light">
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: flex; align-items: center;">
+            <span style="margin-right: 10px;" class="subtitle">Skill:</span>
+            <div class="btn-group" data-toggle="buttons" style="padding: 10px;">
+                {% for choice in form.skill.field.choices %}
+                    <label class="btn btn-primary {% if choice.0 in form.skill.value %}active{% endif %}">
+                        <input type="radio" name="{{ form.skill.name }}" id="{{ form.skill.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.skill.value %}checked{% endif %}>
+                        {{ choice.1 }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {{ form.shape.as_p }}
+        {{ form.profile.as_p }}
+
+    <div style="display: flex; align-items: center;">
+        <span style="margin-right: 10px;" class="subtitle">Terrain:</span>
+        <div class="btn-group" data-toggle="buttons">
+            {% for choice in form.terrain.field.choices %}
+                <label class="btn btn-primary {% if choice.0 in form.terrain.value %}active{% endif %}">
+                    <input type="checkbox" name="{{ form.terrain.name }}" id="{{ form.terrain.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.terrain.value %}checked{% endif %}>
+                    {{ choice.1 }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

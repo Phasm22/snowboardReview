@@ -4,8 +4,10 @@ from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic import ListView
+from .forms import GuideForm
 from django.views.generic.edit import UpdateView
 from django.views.generic.edit import DeleteView
+from django.views.generic.edit import FormView
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -58,6 +60,11 @@ class SnowboardDetailView(DetailView):  # new line
 class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
+
+class GuideView(FormView):
+    template_name = 'snowReview/Guide.html'
+    form_class = GuideForm
+
 
 def createSnowboard(request):
     form = SnowboardForm()
