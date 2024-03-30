@@ -34,7 +34,18 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ['boardSize', 'date', 'conditions', 'snow24', 'snow7', 'riderHeight', 'riderWeight']
+        labels = {
+        'snow24': 'Snowfall in the last 24 hours (inches)',
+        'snow7': 'Snowfall in the last 7 days (inches)',
+        'riderHeight': 'Rider Height (Inches)',
+        'riderWeight': 'Rider Weight (lbs)',
+        'boardSize': 'Board Size (cm)',}
+        # input sanitization
         # For pop up calender
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
+            'snow24': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'snow7': forms.NumberInput(attrs={'min': 0, 'max': 200}),
+            'riderHeight': forms.NumberInput(attrs={'min': 000, 'max':10}),
+            'riderWeight': forms.NumberInput(attrs={'min': 000, 'max': 500}),
         }

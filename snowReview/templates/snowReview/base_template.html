@@ -15,7 +15,7 @@
     .navbar-nav .nav-link {
       font-family: "Shadows Into Light", cursive;
       font-weight: 600;
-      font-size: 26px;
+      font-size: 30px;
     }
     .container {
       max-width: 960px;
@@ -43,6 +43,14 @@
       font-weight: 800;
       font-style: normal;
       font-size: 3.5em;
+    }
+    .title-link {
+      text-decoration: none;
+      color: inherit; 
+    }
+    .title-link:hover {
+      text-decoration: none;
+      color: inherit;
     }
     .user-info {
       display: flex;
@@ -76,12 +84,12 @@
       }
     }
   </style>
-  
-  <!-- Add logo image before the title -->
-  <img src="{% static 'images/logo.png' %}">
-  <span class="title">TheRealPowGuide</span>
-  
 
+  <a class="title-link" href="{% url 'home_view' %}">
+    <!-- Add logo image before the title -->
+    <img src="{% static 'images/logo.png' %}">
+    <span class="title">TheRealPowGuide</span>
+  </a>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1">
    <link rel="preconnect" href="https://fonts.googleapis.com">

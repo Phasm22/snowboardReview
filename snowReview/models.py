@@ -14,7 +14,7 @@ class Review(models.Model):
     conditions = models.CharField(max_length=200, default='Describe Conditions')
     snow24 = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     snow7 = models.DecimalField(max_digits=3, decimal_places=1, default=0)
-    riderHeight = models.DecimalField(max_digits=2, decimal_places=1, default=0)
+    riderHeight = models.DecimalField(max_digits=3, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
     
     # add relation to snowboard
@@ -22,7 +22,7 @@ class Review(models.Model):
     reviewer = models.ForeignKey('Profile', on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.name
+        return self.snowboard.name + " Review"
 
     def get_absolute_url(self):
         return reverse('person-detail', args=[str(self.id)])
@@ -107,7 +107,7 @@ class Comment(models.Model):
         return f"{self.user.username}'s comment on {self.snowboard.name}"
 
     def get_absolute_url(self):
-        return reverse('comment-detail', args=[str(self.id)])
+        return reverse('snowboard-detail', args=[str(self.snowboard.id)])
 
 # shared attributes of users and reviewers
 

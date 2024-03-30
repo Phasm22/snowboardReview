@@ -44,6 +44,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                messages.success(request, f'You are now logged in as {username}.')
                 return redirect('home_view')
             else:
                 messages.error(request,"Invalid username or password.")
@@ -56,6 +57,7 @@ def login_view(request):
 # logout view to log out the user and redirect to the home page
 def logout_view(request):
     logout(request)
+    messages.success(request, 'You have been logged out.')
     return redirect('home_view')
 
 # using the built in django detail view to show the snowboard details
@@ -66,7 +68,6 @@ class SnowboardDetailView(DetailView):
 class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -122,6 +123,7 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Account created successfully.')
             return redirect('login')  # Redirect to the login page after successful registration
     else:
         form = CustomUserCreationForm()
@@ -148,14 +150,29 @@ def add_comment(request, snowboard_id):
 
 
 def add_review(request, snowboard_id):
+    # to get the current snowboard to display it during the form
+    snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
+
+            # Limit the number of reviews per snowboard
+            review_limit = 3
+            existing_reviews = Review.objects.filter(snowboard=snowboard).count()
+            if existing_reviews >= review_limit:
+                messages.error(request, 'Review limit for this snowboard has been reached.')
+                return redirect('snowboard-detail', pk=snowboard_id)
+
             review = form.save(commit=False)
-            review.snowboard = Snowboard.objects.get(pk=snowboard_id)
+            review.snowboard = snowboard
             review.reviewer = request.user.profile
             review.save()
+
+            # for the window location scroll pos
+            review_posted = True
+            messages.success(request, 'Review added.')
             return redirect('snowboard-detail', pk=snowboard_id)
     else:
+        review_posted = False
         form = ReviewForm()
-    return render(request, 'snowReview/add_review.html', {'form': form})
+    return render(request, 'snowboard_detail.html', {'form': form, 'review_posted': review_posted})
