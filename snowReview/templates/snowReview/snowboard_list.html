@@ -1,0 +1,101 @@
+{% extends "snowReview/base_template.html" %}
+
+{% block content %}
+    <style>
+    .snowboard-image {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+    }
+    .title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 3rem;
+        padding: 10px;
+        }
+    .card {
+        display: flex;
+        justify-content: center;
+        align-items: left;
+        padding: 20px;
+    }
+    .center-text {
+        text-align: center;
+        }
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip-text {
+        visibility: hidden;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 90%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .back-button {
+    background-color: black;
+    border-color: black;
+    outline: none !important;
+    }
+    .back-button:hover, .back-button:focus, .back-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none !important;
+    }
+
+    </style>
+    <h1 class="title">
+        Snowboards
+    </h1>
+    {% if user.is_authenticated and profile.is_reviewer %}
+        <a href="{% url 'snowboard-add' %}" class="btn btn-primary mb-3 text-left back-button">Add Snowboard</a>
+    {% endif %}
+
+    <div class="card mb-4 bg-light">
+        <div class="row">
+            {% for snowboard in object_list %}
+                <div class="col-md-4 mx-auto">
+                    <div class="card mb-4 bg-white" style="width: 18rem;">
+                        <div class="tooltip-container">
+                            <a href="{{ snowboard.get_absolute_url }}">
+                                <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">
+                            </a>
+                            <div class="tooltip-text">
+                                Shape: {{ snowboard.shape }}<br>
+                                Skill: {{ snowboard.rider }}<br>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title center-text">
+                                <a href="{{ snowboard.get_absolute_url }}">
+                                    {{ snowboard.name }}
+                                </a>
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-md-12">
+                    <p>No snowboards available.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

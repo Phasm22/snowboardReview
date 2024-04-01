@@ -1,0 +1,11 @@
+{% extends 'snowReview/base_template.html' %}
+
+{% block content %}
+    <h1>Add a Review</h1>
+    <h5>{{ snowboard.name }}</h5>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}
