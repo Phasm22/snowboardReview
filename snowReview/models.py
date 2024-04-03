@@ -78,7 +78,18 @@ class Snowboard(models.Model):
     desc = models.CharField(max_length=500, default='No description available')
     image = models.ImageField(upload_to='snowboards/', null=True)
     brand_image = models.ImageField(upload_to='brands/', null=True)
-    # need to add image, rider, and brand image
+
+    # Overriding the default django delete method to delete the image files as well
+    def delete(self, *args, **kwargs):
+        # Delete the image and brand image files if they exist
+        if self.image:
+            self.image.delete(save=False)
+        if self.brand_image:
+            self.brand_image.delete(save=False)
+
+        # Call the "real" delete() method
+        # this is what deletes te snowboard instance
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.name

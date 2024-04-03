@@ -17,6 +17,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['172.16.0.106',
                 'localhost']
 
+
+LOGIN_URL = 'login_view'
 # Application definition
 
 INSTALLED_APPS = [
@@ -111,6 +113,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [
 os.path.join(BASE_DIR, 'static')
 ]

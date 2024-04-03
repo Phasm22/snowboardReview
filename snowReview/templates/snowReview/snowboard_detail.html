@@ -76,7 +76,7 @@
                 <p><strong>Shape:</strong> {{ snowboard.shape }}</p>
                 <p><strong>Terrain:</strong> 
                     {% for terrain in snowboard.terrain.all %}
-                        {{ terrain.name }}
+                        {{ terrain.name }}{% if not forloop.last %}, {% endif %}
                     {% empty %}
                         No terrain specified
                     {% endfor %}
@@ -147,7 +147,6 @@
     </div>
 </div>
 <!-- Reviews-->
-<!-- Reviews-->
 <div class="accordion" id="accordionReviews">
     <div class="card mt-4">
         <div class="card-header" id="headingReviews">
@@ -158,7 +157,7 @@
             </h5>
         </div>
         <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionReviews">
-            <div class="card-body">
+            <div class="card-body" id="reviews">
                 {% for review in snowboard.review_set.all %}
                     <div class="card mt-4">
                         <p><strong>Board Size:</strong> {{ review.boardSize }}</p>

@@ -13,6 +13,8 @@ import re
 from bs4 import BeautifulSoup
 import sys
 from django.core.files import File
+import requests
+from django.core.files.base import ContentFile
 import json
 from faker import Faker
 
@@ -110,57 +112,12 @@ def scrape_website(website):
     print(f"Rider: {data.get('rider', 'Unknown')}")
     print(f"Flex: {data.get('flex', 'Unknown')}")
     print(f"Description: {data.get('desc', 'No description available')}")
+    print("\n\n")
 
 
     # Extract the image URL
     image_element = soup.select_one('.js-pdp-hero-image-container .js-pdp-image-asset.active')
     image_url = image_element['src'] if image_element else None
-
-    # Download the image and save it to the specified directory
-    if image_url:
-        response = requests.get(image_url)
-        image_name = image_url.split("/")[-1]  # Use the last part of the URL as the image name
-        image_dir = ('media/snowboards')
-        print(image_dir)
-        image_path = (image_dir + image_name)  # This is an absolute path
-        print(image_path)
-
-        # Create the directory if it doesn't exist
-        os.makedirs(image_dir, exist_ok=True)
-
-        with open(image_path, 'wb') as f:
-            f.write(response.content)
-        
-        image_file = File(open(image_path, 'rb'))  # Use the absolute path to open the file
-
-
-    # brand image
-    brand_image_element = soup.select_one('.pdp-details-group .pdp-description-brand-logo')
-    brand_image_url = brand_image_element['src'] if brand_image_element else None
-
-    # Add the protocol to the URL
-    if brand_image_url and brand_image_url.startswith('//'):
-        brand_image_url = 'https:' + brand_image_url
-
-    # Download the image and save it to the specified directory
-    if brand_image_url:
-        response = requests.get(brand_image_url)
-        brand_image_name = brand_image_url.split("/")[-1]
-        brand_dir = ('media/brands')
-        brand_image_path = (brand_dir + brand_image_name)
-
-        # Create the directory if it doesn't exist
-        os.makedirs(brand_dir, exist_ok=True)
-
-        with open(brand_image_path, 'wb') as f:
-            f.write(response.content)
-        
-        brand_image_file = File(open(brand_image_path, 'rb'))
-
-        # terrain
-    terrain_elements = soup.select('.pdp-spec-list-item.spec-terrain .pdp-spec-list-description')
-    terrains = [terrain for element in terrain_elements if element for terrain in element.get_text(strip=True).split(', ')]
-    print(terrains)
 
     # to avoid duplicates
     snowboard, created = Snowboard.objects.get_or_create(
@@ -173,11 +130,40 @@ def scrape_website(website):
             'flex': data.get('flex', '0'),
             'desc': data.get('desc', 'No description available'),
             'brand': brand,
-            'image': image_file if image_url else None,  # Add the image file to the Snowboard instance
-            'brand_image': brand_image_file if brand_image_url else None
         }
     )
-    snowboard.save()
+
+    # Download the image and save it to the specified directory
+    if image_url:
+        response = requests.get(image_url)
+
+        # Create a Django File object from the downloaded image
+        image_file = ContentFile(response.content)
+        image_name = image_url.split("/")[-1]  # Use the last part of the URL as the image name
+        snowboard.image.save(image_name, image_file, save=False)  # Save the image file to the Snowboard instance
+
+    # brand image
+    brand_image_element = soup.select_one('.pdp-details-group .pdp-description-brand-logo')
+    brand_image_url = brand_image_element['src'] if brand_image_element else None
+
+    # Add the protocol to the URL
+    if brand_image_url and brand_image_url.startswith('//'):
+        brand_image_url = 'https:' + brand_image_url
+
+    # Download the brand image and save it to the specified directory
+    if brand_image_url:
+        response = requests.get(brand_image_url)
+
+        # Create a Django File object from the downloaded image
+        brand_image_file = ContentFile(response.content)
+        brand_image_name = brand_image_url.split("/")[-1]  # Use the last part of the URL as the brand image name
+        snowboard.brand_image.save(brand_image_name, brand_image_file, save=False)  # Save the brand image file to the Snowboard instance
+
+# ... rest of the code ...
+    # terrain
+    terrain_elements = soup.select('.pdp-spec-list-item.spec-terrain .pdp-spec-list-description')
+    terrains = [terrain for element in terrain_elements if element for terrain in element.get_text(strip=True).split(', ')]
+    print(terrains)
 
     # Associate the sizes with the snowboard
     for size_name in sizes:
@@ -187,7 +173,6 @@ def scrape_website(website):
 
     # Associate the terrains with the snowboard
     for terrain_name in terrains:
-        print(terrain_name)
         if terrain_name is not None:
             terrain, created = Terrain.objects.get_or_create(name=terrain_name)
             snowboard.terrain.add(terrain)

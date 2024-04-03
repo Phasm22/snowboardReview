@@ -6,17 +6,34 @@
         text-align: center;
         padding: 100px;
     }
-    .btn-info {
-        font-size: 20px;  /* Adjust this value as needed */
-        padding: 15px 30px;  /* Adjust these values as needed */
+    .btn-choice {
+        font-size: 20px;
+        padding: 20px 40px;
+        color: white;
+    }
+
+    .base-button {
+        background-color: black;
+        border-color: black;
+        outline: none;
+        }
+    .base-button:hover, .base-button:focus, .base-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none;
+    }
+    .custom-card {
+        max-width: 800px;  
+        margin: auto;
     }
 </style>
-<h1 class="center-text">
-    Welcome to the Home page! 
-</h1>
-
-<div class="center-text">
-    <a class="btn btn-info" href="{% url 'guide' %}">Snowboard Guide</a>
-        <a class="btn btn-info" href="{% url 'snowboard-list' %}">Search</a>
+<div class="card mb-4 bg-light custom-card">
+    <h1 class="container text-center">
+        Welcome to the Home page! 
+    </h1>
+    <div class="center-text">
+        <a class="btn btn-primary mt-3 text-left base-button btn-choice" href="{% url 'guide' %}">Snowboard Guide</a>
+        <a class="btn btn-primary mt-3 text-left base-button btn-choice" href="{% url 'snowboard-list' %}">Search</a>
+    </div>
 </div>
 {% endblock %}

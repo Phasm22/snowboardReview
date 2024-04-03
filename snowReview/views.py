@@ -1,7 +1,9 @@
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.db.models import Q
 
 from django.views.generic import DetailView
@@ -142,14 +144,17 @@ def add_comment(request, snowboard_id):
             comment.save()
             # to get location and confirmation of message
             messages.success(request, 'Comment added.')
-
             return redirect('snowboard-detail', pk=snowboard.id)
     else:
         form = CommentForm()
     return render(request, 'snowReview/snowboard_detail.html', {'snowboard': snowboard, 'form': form})
 
-
+# no path traversal allowed :)
+@login_required(login_url='login')
 def add_review(request, snowboard_id):
+    # init review_posted
+    review_posted = False
+
     # to get the current snowboard to display it during the form
     snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
     if request.method == 'POST':
@@ -161,18 +166,20 @@ def add_review(request, snowboard_id):
             existing_reviews = Review.objects.filter(snowboard=snowboard).count()
             if existing_reviews >= review_limit:
                 messages.error(request, 'Review limit for this snowboard has been reached.')
-                return redirect('snowboard-detail', pk=snowboard_id)
+                
+                # Redirect to the snowboard detail page with the reviews section in view
+                # its really just the url + snowboard id + #reviews
+                return redirect(reverse('snowboard-detail', kwargs={'pk': snowboard_id}) + '#reviews')
 
             review = form.save(commit=False)
-            review.snowboard = snowboard
+            review.snowboard = Snowboard.objects.get(pk=snowboard_id)
             review.reviewer = request.user.profile
             review.save()
-
-            # for the window location scroll pos
             review_posted = True
             messages.success(request, 'Review added.')
-            return redirect('snowboard-detail', pk=snowboard_id)
+            return redirect(reverse('snowboard-detail', kwargs={'pk': snowboard_id}) + '#reviews')
+
     else:
-        review_posted = False
         form = ReviewForm()
-    return render(request, 'snowboard_detail.html', {'form': form, 'review_posted': review_posted})
+    print(review_posted)
+    return render(request, 'snowReview/add_review.html', {'form': form, 'review_posted': review_posted, 'snowboard': snowboard})
