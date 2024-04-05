@@ -26,10 +26,13 @@ class CustomAuthenticationForm(AuthenticationForm):
         fields = ('username', 'password')
 
 class CommentForm(forms.ModelForm):
+    comment_text = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave a comment here', 'id': 'floatingTextarea'})
+    )
+
     class Meta:
         model = Comment
         fields = ['comment_text']
-
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review

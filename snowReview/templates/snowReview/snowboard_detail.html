@@ -21,6 +21,9 @@
         line-height: 50%;
 
     }
+    .custom-width {
+        width: 50%; /* Change this to the width you want */
+    }
 
     .progress-label-start {
         position: relative;
@@ -181,11 +184,7 @@
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title board-title">Add a Review</h5>
-            <form method="post" action="{% url 'add-review' snowboard.id %}">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            <a href="{% url 'add-review' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Add Review</a>
         </div>
     </div>
 {% endif %}
@@ -221,8 +220,9 @@
             <h5 class="card-title board-title">Add a Comment</h5>
             <form method="post" action="{% url 'add-comment' snowboard.id %}">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Submit</button>
+                    {{ form.comment_text }}
+
+                <button type="submit" class="btn btn-primary mt-3 text-left back-button">Post</button>
             </form>
         </div>
     </div>

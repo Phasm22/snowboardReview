@@ -65,7 +65,13 @@
     border-color: #d67609;
     outline: none !important;
     }
-
+    .form-container {
+      width: 30%;
+      margin: 0 auto;
+    }
+    .item-container {
+      width: 10%;
+    }
     .navbar-nav .nav-link {
       font-family: "Shadows Into Light", cursive;
       font-weight: 600;
@@ -115,8 +121,11 @@
     }
     .right-corner {
       position: absolute;
-      top: 10px;
+      top: -80px;
       right: 10px;
+    }
+    .login-button {
+      position: relative;
     }
 
     @media (min-width: 992px) {
@@ -145,15 +154,19 @@
 
 
  <body>
-  <div class="right-corner">
-    {% if user.is_authenticated %}
-      <div class="user-info">
-        <p><strong> Hello, {{ user.username }}!</strong></p>
-        <a class="btn btn-info consistent-size" href="{% url 'logout_view' %}">Logout</a>
-      </div>
-    {% else %}
-    <a class="btn btn-info consistent-size" href="{% url 'login' %}">Login</a>
-    {% endif %}
+   <div style="position: relative;">
+    <div class="right-corner">
+      {% if user.is_authenticated %}
+        <div class="user-info">
+          <div style="display: flex; align-items: center;">
+            <p style="margin-bottom: 0;"><strong> Hello, {{ user.username }}!</strong></p>
+            <a class="btn btn-info login-button" href="{% url 'logout_view' %}">Logout</a>
+        </div>
+        </div>
+      {% else %}
+      <a class="btn btn-info login-button" href="{% url 'login' %}">Login</a>
+      {% endif %}
+    </div>
   </div>
   
   <div class="container-fluid">

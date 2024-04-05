@@ -71,14 +71,17 @@ class SnowboardDetailView(DetailView):
 class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
-    paginate_by = 10  # Default to 20 items per page
+    paginate_by = 10  # Default to 10 items per page
 
     def get_queryset(self):
         return Snowboard.objects.all()
 
     def get_paginate_by(self, queryset):
-        return self.request.GET.get('items_per_page', self.paginate_by)
-    
+        items_per_page = self.request.GET.get('items_per_page', self.paginate_by)
+        if not items_per_page:
+            items_per_page = self.paginate_by
+        return int(items_per_page)  # Convert items_per_page to an integer
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
@@ -153,23 +156,24 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 # For adding comments
+@login_required(login_url='login')
 def add_comment(request, snowboard_id):
-    # to link the comment to the snowboard
     snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
     if request.method == "POST":
+        print(request.POST)  # Print POST data
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.user = request.user
             comment.snowboard = snowboard
             comment.save()
-            # to get location and confirmation of message
             messages.success(request, 'Comment added.')
             return redirect('snowboard-detail', pk=snowboard.id)
+        else:
+            print(form.errors)  # Print form errors
     else:
         form = CommentForm()
     return render(request, 'snowReview/snowboard_detail.html', {'snowboard': snowboard, 'form': form})
-
     
 # no path traversal allowed :)
 @login_required(login_url='login')
