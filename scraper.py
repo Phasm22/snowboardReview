@@ -159,7 +159,6 @@ def scrape_website(website):
         brand_image_name = brand_image_url.split("/")[-1]  # Use the last part of the URL as the brand image name
         snowboard.brand_image.save(brand_image_name, brand_image_file, save=False)  # Save the brand image file to the Snowboard instance
 
-# ... rest of the code ...
     # terrain
     terrain_elements = soup.select('.pdp-spec-list-item.spec-terrain .pdp-spec-list-description')
     terrains = [terrain for element in terrain_elements if element for terrain in element.get_text(strip=True).split(', ')]
@@ -223,7 +222,7 @@ def get_links_from_user(num_links, url):
 
 if __name__ == "__main__":
     # URL of the page to scrape
-    url = "https://www.evo.com/shop/snowboard/snowboards/all-mountain/mens"
+    url = "https://www.evo.com/shop/snowboard/snowboards/mens/womens/rpp_200"
 
     # Get the number of links from the user
     num_links = int(input("Enter the number of links you want to scrape: "))

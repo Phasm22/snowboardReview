@@ -2,64 +2,12 @@
 
 {% block content %}
     <style>
-    .snowboard-image {
-        width: 250px;
-        height: 250px;
-        object-fit: cover;
-    }
-    .title {
-        font-family: "Shadows Into Light", cursive;
-        font-weight: 600;
-        font-style: normal;
-        font-size: 3rem;
-        padding: 10px;
-        }
     .card {
         display: flex;
         justify-content: center;
         align-items: left;
         padding: 20px;
     }
-    .center-text {
-        text-align: center;
-        }
-    .tooltip-container {
-        position: relative;
-        display: inline-block;
-    }
-
-    .tooltip-text {
-        visibility: hidden;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        padding: 5px 0;
-        border-radius: 6px;
-        position: absolute;
-        z-index: 1;
-        bottom: 100%;
-        left: 90%;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.5s;
-    }
-
-    .tooltip-container:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    .back-button {
-    background-color: black;
-    border-color: black;
-    outline: none !important;
-    }
-    .back-button:hover, .back-button:focus, .back-button:active {
-    background-color: #d67609;
-    border-color: #d67609;
-    outline: none !important;
-    }
-
     </style>
     <h1 class="title">
         Snowboards
@@ -70,7 +18,16 @@
 
     <div class="card mb-4 bg-light">
         <div class="row">
-            {% for snowboard in object_list %}
+            <!-- form for paginator drop down-->
+            <form method="get"  style="padding-bottom: 20px;">
+                <label for="items_per_page" style="font-size: 1.2em; color: #333; font-weight: bold;">Items per page:</label>
+                <select name="items_per_page" id="items_per_page" onchange="this.form.submit()">
+                    <!-- Option for 10 items per page. It is selected if the current items_per_page parameter is "10". -->
+                    <option value="10" {% if request.GET.items_per_page == "10" %}selected{% endif %}>10</option>
+                    <option value="20" {% if request.GET.items_per_page == "20" %}selected{% endif %}>20</option>
+                </select>
+            </form>
+            {% for snowboard in page_obj %}
                 <div class="col-md-4 mx-auto">
                     <div class="card mb-4 bg-white" style="width: 18rem;">
                         <div class="tooltip-container">
@@ -96,6 +53,30 @@
                     <p>No snowboards available.</p>
                 </div>
             {% endfor %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %} <!-- If there are previous pages -->
+                        <!-- Link to the first page. The items_per_page parameter is preserved. -->
+                        <a href="?page=1&items_per_page={{ request.GET.items_per_page }}">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&items_per_page={{ request.GET.items_per_page }}">previous</a>
+                    {% endif %}
+
+                    <!-- Display the current page number and the total number of pages -->
+                    <span class="current">
+                        {% if page_obj.paginator.num_pages == 0 %}
+                            Page 1 of 1
+                        {% else %}
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        {% endif %}
+                    </span>
+                    {% if page_obj.has_next %}
+                        <!-- Link to the next page -->
+                        <a href="?page={{ page_obj.next_page_number }}&items_per_page={{ request.GET.items_per_page }}">next</a>
+                        <!-- Link to the last page -->
+                        <a href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ request.GET.items_per_page }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
         </div>
     </div>
 {% endblock %}

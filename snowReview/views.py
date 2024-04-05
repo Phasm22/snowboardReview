@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 from django.views.generic import DetailView
 from django.views.generic import ListView
@@ -70,7 +71,14 @@ class SnowboardDetailView(DetailView):
 class SnowboardListView(ListView):
     model = Snowboard
     template_name = 'snowReview/snowboard_list.html'
+    paginate_by = 10  # Default to 20 items per page
 
+    def get_queryset(self):
+        return Snowboard.objects.all()
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('items_per_page', self.paginate_by)
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
@@ -78,7 +86,6 @@ class SnowboardListView(ListView):
         if self.request.user.is_authenticated:
             context['profile'], created = Profile.objects.get_or_create(user=self.request.user)
         return context
-    
 # using the built in django form view to filter the snowboards
 class GuideView(FormView):
     template_name = 'snowReview/Guide.html'
@@ -86,26 +93,40 @@ class GuideView(FormView):
 
 # filtered snowboard view
 def snowboard_view(request):
-    # get the form
+    # Create an instance of the GuideForm using the GET request data
     form = GuideForm(request.GET)
-
-    # get all the snowboards
+    
+    # Retrieve all Snowboard objects from the database
     snowboards = Snowboard.objects.all()
-
     if form.is_valid():
-        # filter the snowboards based on the form data
         if form.cleaned_data['rider']:
-            snowboards = snowboards.filter(rider=str(form.cleaned_data['rider']))  # Ensure the value is a string
+            rider = str(form.cleaned_data['rider'])
+            if rider:  # Only filter by rider if rider is not an empty string
+                snowboards = snowboards.filter(rider=rider)
         if form.cleaned_data['terrain']:
-            # Ensure each value in the list is a string
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
-            # filter by terrains and distinct to avoid duplicates
-            snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
-    else:
-        # if there are any errors in the form
-        print(form.errors)
+            if terrains:  # Only filter by terrain if terrains is not an empty list
+                snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
 
-    return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': snowboards})
+
+    items_per_page = request.GET.get('items_per_page', 10)
+    if not items_per_page:
+        items_per_page = 10
+    
+    items_per_page = int(items_per_page)  # Convert items_per_page to an integer
+    print(f"items_per_page: {items_per_page}")
+    paginator = Paginator(snowboards, items_per_page)
+
+    #print the total number of object pagintor has
+    print(f"paginator.count: {paginator.count}")    
+    # print the total pages
+    print(f"paginator.num_pages: {paginator.num_pages}")
+    page_number = request.GET.get('page', 1)  # Default to the first page if 'page' is not in the request
+    print(f"\npage_number: {page_number}")
+    page_obj = paginator.get_page(page_number)
+
+
+    return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': page_obj, 'total_items': snowboards.count()})
 
 def createSnowboard(request):
     form = SnowboardForm()
@@ -149,6 +170,7 @@ def add_comment(request, snowboard_id):
         form = CommentForm()
     return render(request, 'snowReview/snowboard_detail.html', {'snowboard': snowboard, 'form': form})
 
+    
 # no path traversal allowed :)
 @login_required(login_url='login')
 def add_review(request, snowboard_id):
