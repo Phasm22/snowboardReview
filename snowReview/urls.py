@@ -23,6 +23,7 @@ path('', views.home_view, name='index'),
 path('snowboard/', snowboard_view, name='snowboard'),
 path('snowboard-list/', views.SnowboardListView.as_view(), name='snowboard-list'),
 path('snowboard/<int:pk>/', views.SnowboardDetailView.as_view(), name='snowboard-detail'),
+path('snowboard/delete/<int:snowboard_id>/', views.delete_snowboard, name='delete-snowboard'),
 
 # add a snowboard
 path('snowboard/add/', views.createSnowboard, name='snowboard-add'),

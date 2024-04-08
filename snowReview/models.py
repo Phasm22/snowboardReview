@@ -14,7 +14,7 @@ class Review(models.Model):
     conditions = models.CharField(max_length=200, default='Describe Conditions')
     snow24 = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     snow7 = models.DecimalField(max_digits=3, decimal_places=1, default=0)
-    riderHeight = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    riderHeight = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
     
     # add relation to snowboard
@@ -76,8 +76,8 @@ class Snowboard(models.Model):
     brand = models.CharField(max_length=20, default='Unknown')
     name = models.CharField(max_length=50, default='Unknown')
     desc = models.CharField(max_length=500, default='No description available')
-    image = models.ImageField(upload_to='snowboards/', null=True)
-    brand_image = models.ImageField(upload_to='brands/', null=True)
+    image = models.ImageField(upload_to='snowboards/', null=True, default='snowboards/blank.jpg')
+    brand_image = models.ImageField(upload_to='brands/', null=True, blank=True)
 
     # Overriding the default django delete method to delete the image files as well
     def delete(self, *args, **kwargs):

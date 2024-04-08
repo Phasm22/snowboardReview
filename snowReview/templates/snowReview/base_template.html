@@ -24,7 +24,10 @@
         align-items: left;
         padding: 20px;
       }
-    
+      .no-padding {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
     .center-text {
       text-align: center;
     }
@@ -60,6 +63,17 @@
     border-color: black;
     outline: none !important;
     }
+    .custom-font {
+      font-family: "Work Sans", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: <weight>;
+      font-style: normal;
+    }
+    
+    .custom-font a {
+      color: inherit;
+      text-decoration: none
+  }
     .back-button:hover, .back-button:focus, .back-button:active {
     background-color: #d67609;
     border-color: #d67609;
@@ -127,6 +141,14 @@
     .login-button {
       position: relative;
     }
+    body, html {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-nav {
+    margin: 0;
+}
 
     @media (min-width: 992px) {
       .navbar-nav {
@@ -164,16 +186,16 @@
         </div>
         </div>
       {% else %}
-      <a class="btn btn-info login-button" href="{% url 'login' %}">Login</a>
+      <a class="btn btn-info login-button" href="{% url 'login' %}">Login/Register</a>
       {% endif %}
     </div>
   </div>
   
-  <div class="container-fluid">
+  <div class="container-fluid no-padding">
     
     <!-- Navbar-->
-    <nav class="navbar-nav navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
+    <nav class="navbar-nav navbar-expand-lg bg-body-tertiary" style="background-color: rgba(255, 255, 255, 0.93) !important;">
+        <div class="container-fluid no-padding">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>

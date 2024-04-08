@@ -36,7 +36,7 @@
         <div class="row">
             <!-- form for paginator drop down-->
             <form method="get"  style="padding-bottom: 20px;">
-                <div class="item-container">  <!-- Start of item-container div -->
+                <div class="item-container custom-font">  <!-- Start of item-container div -->
                     <label for="items_per_page">Items per page:</label>
                         <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">  <!-- Select dropdown for items per page. The form is submitted when the selected option changes. -->
                         <!-- Option for 10 items per page. It is selected if the current items_per_page parameter is "10". -->
@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title center-text">
+                                <h5 class="card-title center-text custom-font">
                                     <a href="{{ snowboard.get_absolute_url }}">
                                         {{ snowboard.name }}
                                     </a>
@@ -77,11 +77,11 @@
                 <ul class="pagination">
                     {% if page_obj.has_previous %}  <!-- If there are previous pages -->
                         <!-- Link to the first page. The items_per_page parameter is preserved. -->
-                        <li class="page-item">
+                        <li class="page-item custom-font">
                             <a class="page-link" href="?page=1&items_per_page={{ request.GET.items_per_page }}">&laquo; first</a>
                         </li>
                         <!-- Link to the previous page -->
-                        <li class="page-item">
+                        <li class="page-item custom-font">
                             <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ request.GET.items_per_page }}">previous</a>
                         </li>
                     {% endif %}

@@ -25,7 +25,7 @@
     <h1 class="title container text-center">
         Snowboard Guide
         </h1>
-    <p class="text-center">
+    <p class="text-center custom-font">
         This guide will help you filter for boards that meet your specifications then you can look at the various boards that meet your criteria.
     </p>
 </div>
@@ -34,7 +34,7 @@
         {% csrf_token %}
         <div style="display: flex; align-items: center;">
             <span style="margin-right: 10px; padding-left: 20px;" class="subtitle">Skill:</span>
-            <div style="padding: 40px;">
+            <div style="padding: 40px;" class="custom-font">
                 {% for choice in form.rider.field.choices %}
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="{{ form.rider.name }}" id="{{ form.rider.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.rider.value %}checked{% endif %}>
@@ -51,7 +51,7 @@
 
     <div style="display: flex; align-items: center;">
         <span style="margin-right: 10px; padding-left: 20px;" class="subtitle">Terrain:</span>
-        <div style="padding: 40px;">
+        <div style="padding: 40px;" class="custom-font">
             {% for choice in form.terrain.field.choices %}
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" name="{{ form.terrain.name }}" id="{{ form.terrain.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.terrain.value %}checked{% endif %}>
@@ -59,6 +59,19 @@
                         {{ choice.1 }}
                     </label>
                 </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div style="display: flex; align-items: center;">
+        <span style="margin-right: 10px; padding-left: 20px;" class="subtitle">Shape:</span>
+        <div style="padding: 40px;" class="custom-font">
+            {% for choice in form.shape.field.choices %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="{{ form.shape.name }}" id="{{ form.shape.auto_id }}_{{ forloop.counter }}" value="{{ choice.0 }}" {% if choice.0 in form.shape.value %}checked{% endif %}>
+                <label class="form-check-label" for="{{ form.shape.auto_id }}_{{ forloop.counter }}">
+                    {{ choice.1 }}
+                </label>
+            </div>
             {% endfor %}
         </div>
     </div>

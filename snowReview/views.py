@@ -110,7 +110,12 @@ def snowboard_view(request):
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
             if terrains:  # Only filter by terrain if terrains is not an empty list
                 snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
-
+        if form.cleaned_data['shape']:
+            shapes = form.cleaned_data['shape']
+            print(f"Shapes: {shapes}")  # Debug line
+            if shapes:
+                snowboards = snowboards.filter(shape__in=shapes)
+                print(f"Snowboards after shape filter: {snowboards}")  # Debug line
 
     items_per_page = request.GET.get('items_per_page', 10)
     if not items_per_page:
@@ -139,9 +144,18 @@ def createSnowboard(request):
         if form.is_valid():
             form.save()
             return redirect('snowboard-list')
+        else:
+            print(f"Form errors: {form.errors}")  # Debug line
 
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     return render(request, 'snowReview/addBoard_form.html', context)
+
+def delete_snowboard(request, snowboard_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        snowboard = get_object_or_404(Snowboard, id=snowboard_id)
+        snowboard.delete()
+        messages.success(request, f'{snowboard} successfully deleted.')
+        return redirect('snowboard-list')
 
 # for creating a user account
 def register(request):

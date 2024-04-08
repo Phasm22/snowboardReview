@@ -104,6 +104,7 @@
         {% else %}
             <p>No snowboards found.</p>
         {% endif %}
+        <div class="container" style="text-align: left;">
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     {% if snowboards.has_previous %}  <!-- If there are previous pages -->
@@ -136,6 +137,7 @@
                     {% endif %}
                 </ul>
             </nav>
+        </div>
         </div>
     </div>
 {% endblock %}

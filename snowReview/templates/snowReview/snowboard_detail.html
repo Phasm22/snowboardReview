@@ -70,20 +70,80 @@
 
 </style>
 <a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
+
+{% if user.is_authenticated and user.is_staff %}
+    <button type="button" class="btn btn-danger mt-3 text-left delete-button" data-toggle="modal" data-target="#deleteModal">Delete Snowboard</button>
+{% endif %}
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this snowboard?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a href="{% url 'delete-snowboard' snowboard.id %}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="card mt-4">
     <div class="card-body">
         <h5 class="card-title board-title">{{ snowboard.name }}</h5>
         <div class="row">
-            <div class="col-md-6 pt-5" >
+            <div class="col-md-6 pt-5 custom-font" >
                 <p><strong>Season:</strong> {{ snowboard.season }}</p>
-                <p><strong>Shape:</strong> {{ snowboard.shape }}</p>
+                <p><strong>Shape:</strong>
+                    {{ snowboard.shape }}
+                    {% if snowboard.shape == "Directional" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Directional: The nose is wider than the tail, giving you plenty of float in powder and stability at high speeds.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "Twin" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Twin: The nose and tail are identical in shape and flex, which makes it easy to ride switch.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "Directional Twin" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="Directional Twin: The nose is slightly longer than the tail, giving you plenty of float in powder and stability at high speeds.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "True Twin" %}
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="Directional Twin: The nose is slightly longer than the tail, giving you plenty of float in powder and stability at high speeds.">
+                        <i class="bi bi-question-circle"></i>
+                    </span>
+                    {% endif %}
+                </p>
                 <p><strong>Terrain:</strong> 
                     {% for terrain in snowboard.terrain.all %}
-                        {{ terrain.name }}{% if not forloop.last %}, {% endif %}
+                        {{ terrain.name }}
+                        {% if terrain.name == "Freestyle" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Light, short and flexible. Limited edge grip and are not stable enough for carving turns and travelling fast.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "All-Mountain" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Designed to perform well anywhere on the mountain. Floats well on powder surfaces, carves on the pistes and handle lumps and bumps.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "Freeride" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Focuses on riding natural or ungroomed terrain outside of resort boundaries in either the side country or backcountry areas.<br><br>Usually stiffer and longer than freestyle. The stiffness gives them quicker response times edge to edge.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "Powder" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Soft to medium flex, allowing you to make precise, technical turns at lower speeds while still being able to deliver a solid, responsive ride when you open up the throttle.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% endif %}
+                        {% if not forloop.last %}, {% endif %}
                     {% empty %}
                         No terrain specified
                     {% endfor %}
-                </p>                
+                </p>            
                 <p><strong>Profile:</strong> {{ snowboard.profile }}</p>
                 <p><strong>Rider:</strong> 
                 {% if snowboard.rider == "Expert" %}
@@ -104,6 +164,23 @@
                 {% else %}
                     <span>{{ snowboard.rider }}</span>
                 {% endif %}
+
+            <!-- Rider tooltip-->
+                {% if snowboard.rider == "Expert" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Expert: You are comfortable riding at speed. You have mastered multiple turn types. Riding switch has become second nature too.">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% elif snowboard.rider == "Intermediate" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Intermediate: You can attempt black runs - but it's not always pretty! You are getting better at navigating more uneven terrain.">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% elif snowboard.rider == "Beginner" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Beginner: You are brand new. You start out learning how to control your speed and get some distance down a slope without bailing!">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% else %}
+                    <span>{{ snowboard.rider }}</span>
+                {% endif %}
                 </p >
                 <div class="flex-container">
                     <div class="flex-label"><strong>Flex:</strong></div>
@@ -115,11 +192,19 @@
                         <div class="progress-label-start">Soft</div>
                         <div class="progress-label-end">Firm</div>
                     </div>
+                    <span data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top" title="Softer: Much more sensitive to user input, so they work well for softer or bumpier snow surfaces.<br><br>Stiffer: Increased edge grip and faster response at high speeds.">
+                        <i class="bi bi-question-circle"></i>
+                    </span>
+                    <script>
+                    $(function () {
+                        $('[data-bs-toggle="tooltip"]').tooltip()
+                    })
+                    </script>
                 </div>
                 <!-- size -->
                 <p style="padding-top: 14px;"><strong>Sizes:</strong> 
                 {% for size in snowboard.sizes.all %}
-                    {{ size.size }}
+                    {{ size.size }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}
                 </p>
                 
@@ -130,14 +215,6 @@
                 {% else %}
                 {% endif %}
                 <p><strong>Description:</strong> {{ snowboard.desc }}</p>
-                <span data-bs-toggle="tooltip" data-bs-placement="top" title=" hover-enabled information">
-                    <i class="bi bi-question-circle"></i>
-                  </span>
-                <script>
-                $(function () {
-                    $('[data-bs-toggle="tooltip"]').tooltip()
-                })
-                </script>
             </div>
             <div class="col-md-6">
                 {% if snowboard.image %}
@@ -160,7 +237,7 @@
             </h5>
         </div>
         <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionReviews">
-            <div class="card-body" id="reviews">
+            <div class="card-body custom-font" id="reviews">
                 {% for review in snowboard.review_set.all %}
                     <div class="card mt-4">
                         <p><strong>Board Size:</strong> {{ review.boardSize }}</p>
@@ -173,7 +250,9 @@
                         <small>Posted by {{ review.reviewer.user.username }}</small>
                     </div>
                 {% empty %}
-                    <p>No reviews yet.</p>
+                    <p class="custom-font">
+                        No reviews yet.
+                    </p>
                 {% endfor %}
             </div>
         </div>
@@ -199,7 +278,7 @@
             </h5>
         </div>
         <div id="collapseComments" class="collapse" aria-labelledby="headingComments" data-parent="#accordionComments">
-            <div class="card-body">
+            <div class="card-body custom-font">
                 {% for comment in snowboard.comment_set.all %}
                     <div class="card mt-4">
                         <p style="padding-left: 10px">{{ comment.comment_text }}</p>

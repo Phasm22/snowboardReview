@@ -21,19 +21,39 @@
         }
     </style>
 <h1 class="board-title text-left mt-3">Add a Snowboard</h1>
+<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
+<div class:"form-container">
 
-<form method="post">
-    {% csrf_token %}
-    <a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
-    <div class="card mt-4">
-        <div style="max-width: 500px; margin: auto;">
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" required><br>
-            <label for="description">Description:</label><br>
-            <textarea id="description" name="description" required></textarea><br>
-            <input type="submit" value="Submit">
+    <form method="post" class="form-group">
+        <div class="card mt-4">
+            <div style="max-width: 500px; margin: auto;">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.name == "sizes" %}
+                            <div style="display: flex; flex-wrap: wrap;">
+                                {% for choice in field.field.choices %}
+                                    <div style="flex: 1 0 20%;">
+                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice.0 }}" id="{{ field.auto_id }}_{{ forloop.counter }}" {% if choice.0 in field.value %}checked{% endif %}>
+                                        <label for="{{ field.auto_id }}_{{ forloop.counter }}">{{ choice.1 }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <input type="submit" value="Submit">
+            </div>
         </div>
+    </form>
     </div>
-</form>
-
-{% endblock content %}
+    {% endblock content %}

@@ -1,14 +1,32 @@
 from django.forms import ModelForm
-from .models import Snowboard, Terrain, Comment, Review
+from .models import Snowboard, Terrain, Comment, Review, Size
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
 
 class SnowboardForm(ModelForm):
+    terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=True, widget=forms.CheckboxSelectMultiple())
+    profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=True)
+    rider = forms.ChoiceField(choices=Snowboard.SKILL, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+    sizes = forms.MultipleChoiceField(choices=[(i, i) for i in range(120, 191)], widget=forms.CheckboxSelectMultiple())
+
     class Meta:
         model = Snowboard
-        fields =  ('name', 'desc',)
+        fields =  ('name', 'season', 'terrain', 'profile', 'rider', 'sizes', 'desc',)
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'season': forms.NumberInput(attrs={'class': 'form-control', 'min': 1900, 'max': 2099}),
+            'desc': forms.Textarea(attrs={'class': 'form-control'}),
+            'flex': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 10}),
+        }
+    
+    def clean_terrain(self):
+        terrain = self.cleaned_data.get('terrain')
+        return Terrain.objects.filter(name__in=terrain)
 
+    def clean_sizes(self):
+        sizes = self.cleaned_data.get('sizes')
+        return Size.objects.filter(size__in=sizes)   
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
@@ -49,6 +67,6 @@ class ReviewForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'snow24': forms.NumberInput(attrs={'min': 0, 'max': 100}),
             'snow7': forms.NumberInput(attrs={'min': 0, 'max': 200}),
-            'riderHeight': forms.NumberInput(attrs={'min': 000, 'max':10}),
+            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 10, 'step': '0.01'}),
             'riderWeight': forms.NumberInput(attrs={'min': 000, 'max': 500}),
         }
