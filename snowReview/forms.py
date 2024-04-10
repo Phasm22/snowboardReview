@@ -9,6 +9,7 @@ class SnowboardForm(ModelForm):
     profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=True)
     rider = forms.ChoiceField(choices=Snowboard.SKILL, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
     sizes = forms.MultipleChoiceField(choices=[(i, i) for i in range(120, 191)], widget=forms.CheckboxSelectMultiple())
+    desc = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), label='Description')
 
     class Meta:
         model = Snowboard
@@ -16,7 +17,6 @@ class SnowboardForm(ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'season': forms.NumberInput(attrs={'class': 'form-control', 'min': 1900, 'max': 2099}),
-            'desc': forms.Textarea(attrs={'class': 'form-control'}),
             'flex': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 10}),
         }
     

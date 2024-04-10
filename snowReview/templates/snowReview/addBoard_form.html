@@ -30,7 +30,7 @@
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
                         {% if field.name == "sizes" %}
                             <div style="display: flex; flex-wrap: wrap;">
                                 {% for choice in field.field.choices %}

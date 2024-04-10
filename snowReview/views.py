@@ -223,3 +223,11 @@ def add_review(request, snowboard_id):
         form = ReviewForm()
     print(review_posted)
     return render(request, 'snowReview/add_review.html', {'form': form, 'review_posted': review_posted, 'snowboard': snowboard})
+
+    #Delete Review
+@login_required
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    if request.user.is_staff or request.user == review.reviewer.user:
+        review.delete()
+    return redirect('snowboard-detail', review.snowboard.id)
