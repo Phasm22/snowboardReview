@@ -33,9 +33,13 @@ path('guide/', views.GuideView.as_view(), name='guide'),
 
 # Reviews
 path('snowboard/<int:snowboard_id>/review/', views.add_review, name='add-review'),
+path('edit-review/<int:review_id>/', views.edit_review, name='edit-review'),
 path('delete-review/<int:review_id>/', views.delete_review, name='delete-review'),
 
 # Comments
 path('snowboard/<int:snowboard_id>/add_comment/', views.add_comment, name='add-comment'),
+path('edit-comment/<int:comment_id>/', views.edit_comment, name='edit-comment'),
+path('delete-comment/<int:comment_id>/', views.delete_comment, name='delete-comment'),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

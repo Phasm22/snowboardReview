@@ -247,7 +247,35 @@
                         <p><strong>Snow in the last 7 days:</strong> {{ review.snow7 }}</p>
                         <p><strong>Rider Height:</strong> {{ review.riderHeight }}</p>
                         <p><strong>Rider Weight:</strong> {{ review.riderWeight }}</p>
-                        <small>Posted by {{ review.reviewer.user.username }}</small>
+                        <small><i class="fas fa-user"></i> {{ review.reviewer.user.username }}</small>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ review.updated_at }}</p>
+                            {% if user == review.reviewer.user or user.is_staff %}
+                            <div>
+                                <a href="{% url 'edit-review' review.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteReviewModal">Delete</button>
+                            </div>
+                        {% endif %}
+                        <div class="modal fade" id="deleteReviewModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalReviewLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalReviewLabel">Confirm Delete</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this review?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <a href="{% url 'delete-review' review.id %}" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
                 {% empty %}
                     <p class="custom-font">
@@ -282,7 +310,33 @@
                 {% for comment in snowboard.comment_set.all %}
                     <div class="card mt-4">
                         <p style="padding-left: 10px">{{ comment.comment_text }}</p>
-                        <small>Posted by {{ comment.user.username }}</small>
+                        <small><i class="fas fa-user"></i> {{ comment.user.username }}</small>
+                        <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ comment.updated_at }}</p>
+                        {% if user == comment.user or user.is_staff %}
+                            <div>
+                                <a href="{% url 'edit-comment' comment.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteCommentModal">Delete</button>
+                            </div>
+                        {% endif %}
+                        <div class="modal fade mt-4" id="deleteCommentModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalCommentLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalCommentLabel">Confirm Delete</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this comment?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <a href="{% url 'delete-comment' comment.id %}" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <p>No comments yet.</p>
@@ -297,11 +351,14 @@
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title board-title">Add a Comment</h5>
-            <form method="post" action="{% url 'add-comment' snowboard.id %}">
+            <form method="post">
                 {% csrf_token %}
-                    {{ form.comment_text }}
-
-                <button type="submit" class="btn btn-primary mt-3 text-left back-button">Post</button>
+                {{ form.comment_text }}
+                {% if comment %}
+                    <button type="submit" formaction="{% url 'edit-comment' comment.id %}" class="btn btn-primary mt-3 text-left back-button">Update</button>
+                {% else %}
+                    <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
+                {% endif %}
             </form>
         </div>
     </div>

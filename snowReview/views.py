@@ -1,24 +1,23 @@
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import HttpResponse
-from django.urls import reverse_lazy
-from django.urls import reverse
 from django.db.models import Q
-from django.core.paginator import Paginator
-
-from django.views.generic import DetailView
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.urls import reverse
+from django.urls import reverse_lazy
 from django.views.generic import ListView
+from django.core.paginator import Paginator
+from django.views.generic import DetailView
 from django.views.generic.edit import FormView
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate
 from django.contrib.auth import login
-from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
+from django.contrib.auth import authenticate
+from django.contrib.auth import views as auth_views
 from .forms import GuideForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
 from snowReview.forms import SnowboardForm, CommentForm
-from .models import Snowboard, Profile, Review
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
+from .models import Snowboard, Profile, Review, Comment
 
 # Create your views here.
 def index(request):
@@ -188,7 +187,35 @@ def add_comment(request, snowboard_id):
     else:
         form = CommentForm()
     return render(request, 'snowReview/snowboard_detail.html', {'snowboard': snowboard, 'form': form})
-    
+
+# Edit Comment
+@login_required(login_url='login')
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user.is_staff or request.user == comment.user:
+        if request.method == "POST":
+            form = CommentForm(request.POST, instance=comment)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Comment updated.')
+                return redirect('snowboard-detail', pk=comment.snowboard.id)
+            else:
+                print(form.errors)  # Print form errors
+        else:
+            form = CommentForm(instance=comment)
+        return render(request, 'snowReview/snowboard_detail.html', {'snowboard': comment.snowboard, 'form': form, 'comment': comment})
+    else:
+        messages.error(request, 'You do not have permission to edit this comment.')
+        return redirect('snowboard-detail', pk=comment.snowboard.id)
+# Delete Comment
+def delete_comment(request, snowboard_id):
+    comment = get_object_or_404(Comment, id=snowboard_id)
+    if request.user.is_staff or request.user == comment.user:
+        comment.delete()
+        messages.success(request, 'Comment Deleted')
+    return redirect('snowboard-detail', comment.snowboard.id)
+
+
 # no path traversal allowed :)
 @login_required(login_url='login')
 def add_review(request, snowboard_id):
@@ -230,4 +257,25 @@ def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     if request.user.is_staff or request.user == review.reviewer.user:
         review.delete()
+        messages.success(request, 'Review Deleted')
     return redirect('snowboard-detail', review.snowboard.id)
+
+
+@login_required
+def edit_review(request, review_id):
+    # get review object
+    review = get_object_or_404(Review, id=review_id)
+    # if user is admin or post author
+    if request.user.is_staff or request.user == review.reviewer.user:
+        if request.method == 'POST':
+            form = ReviewForm(request.POST, instance=review)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Review Updated')
+                return redirect('snowboard-detail', review.snowboard.id)
+        else:
+            form = ReviewForm(instance=review)
+        return render(request, 'snowReview/add_review.html', {'form': form, 'snowboard': review.snowboard})
+    else:
+        messages.error(request, 'You are not authorized to edit this review')
+        return redirect('snowboard-detail', review.snowboard.id)

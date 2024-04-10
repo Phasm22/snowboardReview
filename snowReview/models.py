@@ -16,7 +16,8 @@ class Review(models.Model):
     snow7 = models.DecimalField(max_digits=3, decimal_places=1, default=0)
     riderHeight = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
-    
+    updated_at = models.DateTimeField(auto_now=True)
+
     # add relation to snowboard
     snowboard = models.ForeignKey('Snowboard', on_delete=models.CASCADE)
     reviewer = models.ForeignKey('Profile', on_delete=models.CASCADE)
@@ -113,6 +114,7 @@ class Comment(models.Model):
     snowboard = models.ForeignKey(Snowboard, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment_text = models.TextField(default="Add text here")  # add a field to store the comment text
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.username}'s comment on {self.snowboard.name}"
