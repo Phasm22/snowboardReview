@@ -2,19 +2,34 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import generic
-
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 # Create your models here.
 
 # Review objects
 class Review(models.Model):
     BOARD_SIZES = [(str(i), f"{i} cm") for i in range(130, 170)]
+
+    snow24 = models.DecimalField(
+    max_digits=4, 
+    decimal_places=2, 
+    validators=[
+        MinValueValidator(0),
+        MaxValueValidator(100)
+        ]
+    )
+    snow7 = models.DecimalField(
+        max_digits=4, 
+        decimal_places=2, 
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(200)
+        ]
+    )
     
     boardSize = models.CharField(max_length=200, choices=BOARD_SIZES, default=BOARD_SIZES[0][0])
     date = models.DateField(default='2024-01-01')
     conditions = models.CharField(max_length=200, default='Describe Conditions')
-    snow24 = models.DecimalField(max_digits=2, decimal_places=1, default=0)
-    snow7 = models.DecimalField(max_digits=3, decimal_places=1, default=0)
-    riderHeight = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    riderHeight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
     updated_at = models.DateTimeField(auto_now=True)
 

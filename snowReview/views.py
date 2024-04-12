@@ -105,14 +105,20 @@ def snowboard_view(request):
             rider = str(form.cleaned_data['rider'])
             if rider:  # Only filter by rider if rider is not an empty string
                 snowboards = snowboards.filter(rider=rider)
+                # debug
+                print(f"Snowboards after rider filter: {snowboards}")
         if form.cleaned_data['terrain']:
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
             if terrains:  # Only filter by terrain if terrains is not an empty list
                 snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
+                # debug
+                print(f"Snowboards after terrain filter: {snowboards}")
         if form.cleaned_data['shape']:
             shapes = form.cleaned_data['shape']
             print(f"Shapes: {shapes}")  # Debug line
             if shapes:
+                if isinstance(shapes, str):
+                    shapes = [shapes]  # Ensure shapes is a list
                 snowboards = snowboards.filter(shape__in=shapes)
                 print(f"Snowboards after shape filter: {snowboards}")  # Debug line
 
@@ -135,6 +141,7 @@ def snowboard_view(request):
 
     return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': page_obj, 'total_items': snowboards.count()})
 
+@login_required(login_url='login')
 def createSnowboard(request):
     form = SnowboardForm()
 
@@ -149,6 +156,7 @@ def createSnowboard(request):
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     return render(request, 'snowReview/addBoard_form.html', context)
 
+@login_required(login_url='login')
 def delete_snowboard(request, snowboard_id):
     if request.user.is_authenticated and request.user.is_staff:
         snowboard = get_object_or_404(Snowboard, id=snowboard_id)
@@ -194,6 +202,7 @@ def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user.is_staff or request.user == comment.user:
         if request.method == "POST":
+            # load the form with the comment instance
             form = CommentForm(request.POST, instance=comment)
             if form.is_valid():
                 form.save()
@@ -207,12 +216,16 @@ def edit_comment(request, comment_id):
     else:
         messages.error(request, 'You do not have permission to edit this comment.')
         return redirect('snowboard-detail', pk=comment.snowboard.id)
+    
+
 # Delete Comment
-def delete_comment(request, snowboard_id):
-    comment = get_object_or_404(Comment, id=snowboard_id)
+# no path traversal allowed :)
+@login_required(login_url='login')
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
     if request.user.is_staff or request.user == comment.user:
         comment.delete()
-        messages.success(request, 'Comment Deleted')
+        messages.success(request, f'Comment deleted by {request.user.username}')
     return redirect('snowboard-detail', comment.snowboard.id)
 
 
@@ -251,17 +264,18 @@ def add_review(request, snowboard_id):
     print(review_posted)
     return render(request, 'snowReview/add_review.html', {'form': form, 'review_posted': review_posted, 'snowboard': snowboard})
 
-    #Delete Review
-@login_required
+# no path traversal allowed :)
+@login_required(login_url='login')
 def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     if request.user.is_staff or request.user == review.reviewer.user:
         review.delete()
-        messages.success(request, 'Review Deleted')
+        messages.success(request, f'Review deleted by {request.user.username}')
     return redirect('snowboard-detail', review.snowboard.id)
 
 
-@login_required
+# no path traversal allowed :)
+@login_required(login_url='login')
 def edit_review(request, review_id):
     # get review object
     review = get_object_or_404(Review, id=review_id)

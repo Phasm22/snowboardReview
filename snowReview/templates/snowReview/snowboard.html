@@ -60,7 +60,7 @@
             <!-- form for paginator drop down-->
             <form method="get" style="padding-bottom: 20px;"> 
                 {% csrf_token %} 
-                <div class="item-container">  <!-- Start of item-container div -->
+                <div class="item-container custom-font">  <!-- Start of item-container div -->
                     <label for="items_per_page">Items per page:</label>
                     <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">  <!-- Select dropdown for items per page. The form is submitted when the selected option changes. -->
                         <!-- Option for 10 items per page. It is selected if the current items_per_page parameter is "10". -->
@@ -76,7 +76,13 @@
                     <input type="hidden" name="terrain" value="{{ terrain }}">
                 {% endfor %}
             </form> 
-        {% if snowboards %}
+        {% if snowboards.count == 0 %}
+            <div class="card mb-4 bg-light">
+                <div class="row">
+                    <p class="card-text text-left">No snowboards found</p>
+                </div>
+            </div>
+        {% else %}
             <div class="row row-cols-1 row-cols-md-3 g-4">  <!-- Start of row div -->
                 {% for snowboard in snowboards %}
                     <div class="col">
@@ -87,11 +93,11 @@
                                 </a>
                                 <div class="tooltip-text">
                                     Shape: {{ snowboard.shape }}<br>
-                                    Profile: {{ snowboard.profile }}<br>
+                                    Skill: {{ snowboard.rider }}<br>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title center-text">
+                                <h5 class="card-title center-text custom-font">
                                     <a href="{{ snowboard.get_absolute_url }}">
                                         {{ snowboard.name }}
                                     </a>
@@ -101,8 +107,6 @@
                     </div>
                 {% endfor %}
             </div>  <!-- End of row div -->
-        {% else %}
-            <p>No snowboards found.</p>
         {% endif %}
         <div class="container" style="text-align: left;">
             <nav aria-label="Page navigation example">

@@ -98,6 +98,7 @@ def makeReview(driver, reviews):
             # navigate back to the snowboards page
         driver.get("http://172.16.0.106:8000/snowboard-list/")  
 
+# takes a list of users, logs in makes 1 review and goes to the next user
 def test_user_login_and_review():
     driver = webdriver.Chrome()
 
@@ -127,7 +128,7 @@ options.add_argument("--headless")
 
 if __name__ == "__main__":
     #test_user_login_and_review()
-
+    # kathy_lopez is a reviewer
     user = "kathy_lopez"
     password = "TestPassword123"
     driver = webdriver.Chrome(options=options)

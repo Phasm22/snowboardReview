@@ -1,4 +1,5 @@
 from django.forms import ModelForm
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 from .models import Snowboard, Terrain, Comment, Review, Size
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -51,22 +52,34 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['comment_text']
+        
 class ReviewForm(forms.ModelForm):
+    snow24 = forms.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+            DecimalValidator(max_digits=4, decimal_places=2)
+        ]
+    )
+    snow7 = forms.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(200),
+            DecimalValidator(max_digits=4, decimal_places=2)
+        ]
+    )
     class Meta:
         model = Review
         fields = ['boardSize', 'date', 'conditions', 'snow24', 'snow7', 'riderHeight', 'riderWeight']
         labels = {
-        'snow24': 'Snowfall in the last 24 hours (inches)',
-        'snow7': 'Snowfall in the last 7 days (inches)',
-        'riderHeight': 'Rider Height (Inches)',
-        'riderWeight': 'Rider Weight (lbs)',
-        'boardSize': 'Board Size (cm)',}
-        # input sanitization
-        # For pop up calender
+            'snow24': 'Snowfall in the last 24 hours (inches)',
+            'snow7': 'Snowfall in the last 7 days (inches)',
+            'riderHeight': 'Rider Height (Inches)',
+            'riderWeight': 'Rider Weight (lbs)',
+            'boardSize': 'Board Size (cm)',
+        }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'snow24': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'snow7': forms.NumberInput(attrs={'min': 0, 'max': 200}),
-            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 10, 'step': '0.01'}),
-            'riderWeight': forms.NumberInput(attrs={'min': 000, 'max': 500}),
+            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 300, 'step': '0.01'}),
+            'riderWeight': forms.NumberInput(attrs={'min': 0, 'max': 500}),
         }
