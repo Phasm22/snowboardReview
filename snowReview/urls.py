@@ -13,6 +13,7 @@ path('register/', views.register, name='register'),
 path('login/', views.login_view, name='login'),
 path('home/', views.home_view, name='home_view'),
 path('logout/', views.logout_view, name='logout_view'),
+path('profile/', views.profile_view, name='profile_view'),
 path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
 path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
 

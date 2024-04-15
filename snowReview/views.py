@@ -14,6 +14,7 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.models import User
 from .forms import GuideForm
 from snowReview.forms import SnowboardForm, CommentForm
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
@@ -65,6 +66,15 @@ def logout_view(request):
     messages.success(request, 'You have been logged out.')
     return redirect('home_view')
 
+@login_required
+def profile_view(request):
+    profile = Profile.objects.get(user=request.user)
+    comments = Comment.objects.filter(user=request.user)
+    if profile.is_reviewer:
+        reviews = Review.objects.filter(reviewer=profile)
+    else:
+        reviews = None
+    return render(request, 'snowReview/profile.html', {'comments': comments, 'reviews': reviews, 'profile': profile})
 
 def do_nothing(request):
     return HttpResponse("This is a view that does nothing.")

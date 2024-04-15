@@ -184,7 +184,8 @@
         <div class="user-info">
           <div style="display: flex; align-items: center;">
             <p style="margin-bottom: 0;"><strong> Hello, {{ user.username }}!</strong></p>
-            <a class="btn btn-info login-button" href="{% url 'logout_view' %}">Logout</a>
+            <a class="btn btn-info login-button" style="margin-right: 15px;" href="{% url 'logout_view' %}">Logout</a>
+            <a class="btn btn-info login-button" href="{% url 'profile_view' %}">Profile</a>
         </div>
         </div>
       {% else %}
