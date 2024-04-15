@@ -14,7 +14,7 @@ class Review(models.Model):
     conditions = models.CharField(max_length=200, default='Describe Conditions')
     snow24 = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     snow7 = models.DecimalField(max_digits=3, decimal_places=1, default=0)
-    riderHeight = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    riderHeight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
     updated_at = models.DateTimeField(auto_now=True)
 

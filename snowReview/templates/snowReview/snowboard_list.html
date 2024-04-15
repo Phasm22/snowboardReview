@@ -1,12 +1,20 @@
 {% extends "snowReview/base_template.html" %}
+{% load static %}
 
 {% block content %}
     <style>
     .card {
-        display: flex;
-        justify-content: center;
-        align-items: left;
-        padding: 20px;
+        /* Set a minimum height for the card */
+        min-height: 300px;
+    }
+    .card-title {
+        /* Set a minimum height for the card title */
+        min-height: 60px;
+    }
+    .col {
+        /* Add padding to the left and right of each column */
+        padding-left: 20px;
+        padding-right: 20px;
     }
     .btn-choice {
         font-size: 15px;
@@ -18,13 +26,31 @@
         background-color: black;
         border-color: black;
         outline: none;
-        }
-    .base-button:hover, .base-button:focus, .base-button:active {
-    background-color: #d67609;
-    border-color: #d67609;
-    outline: none;
     }
-    </style>
+    .base-button:hover, .base-button:focus, .base-button:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none;
+    }
+
+    #btn-back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+    }
+
+    #btn-back-to-top:focus, #btn-back-to-top:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none;
+    }
+</style>
+    <!-- Back to top button -->
+<button type="button" class="btn btn-primary btn-floating btn-lg base-button" id="btn-back-to-top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+  
     <h1 class="title">
         Snowboards
     </h1>
@@ -32,7 +58,7 @@
         <a href="{% url 'snowboard-add' %}" class="btn btn-primary mt-2 mb-3 text-left base-button btn-choice">Add Snowboard</a>
     {% endif %}
 
-    <div class="card mb-4 bg-light">
+    <div class="card mb-4 bg-light mx-auto" style="width: 62rem;">
         <div class="row">
             <!-- form for paginator drop down-->
             <form method="get"  style="padding-bottom: 20px;">
@@ -40,8 +66,9 @@
                     <label for="items_per_page">Items per page:</label>
                         <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">  <!-- Select dropdown for items per page. The form is submitted when the selected option changes. -->
                         <!-- Option for 10 items per page. It is selected if the current items_per_page parameter is "10". -->
-                        <option value="10" {% if request.GET.items_per_page == "10" %}selected{% endif %}>10</option>
-                        <option value="20" {% if request.GET.items_per_page == "20" %}selected{% endif %}>20</option>
+                        <option value="15" {% if request.GET.items_per_page == "10" %}selected{% endif %}>15</option>
+                        <option value="30" {% if request.GET.items_per_page == "20" %}selected{% endif %}>30</option>
+                        <option value="90" {% if request.GET.items_per_page == "20" %}selected{% endif %}>90</option>
                     </select>
                 </div>
             </form>
@@ -72,7 +99,7 @@
                         <p>No snowboards available.</p>
                     </div>
                 {% endfor %}
-            </div>  <!-- End of row div -->
+            </div>
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     {% if page_obj.has_previous %}  <!-- If there are previous pages -->
@@ -111,4 +138,6 @@
             </nav>
         </div>
     </div>
+
+    <script src="{% static 'js/button.js' %}"></script>
 {% endblock %}

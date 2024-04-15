@@ -18,7 +18,7 @@ ALLOWED_HOSTS = ['172.16.0.106',
                 'localhost']
 
 
-LOGIN_URL = 'login_view'
+LOGIN_URL = 'login'
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,6 +45,14 @@ MIDDLEWARE = [
 SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = 'django_project.urls'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mailersend.net'  # SMTP server
+EMAIL_PORT = 587  # SMTP port
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'MS_tzb4M1@tandonjenkins.com'  # SMTP username
+EMAIL_HOST_PASSWORD = 'MnVtcrSeiY1x8YHp'  # SMTP password
+DEFAULT_FROM_EMAIL = 'MS_tzb4M1@tandonjenkins.com'  # email to send from
 
 TEMPLATES = [
     {

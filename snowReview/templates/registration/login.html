@@ -1,10 +1,53 @@
-{% extends 'base_generic.html' %}
+{% extends "snowReview/base_template.html" %}
 
 {% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-  </form>
+<style>
+  .wide-card {
+  width: 99.9%;  /* Adjust as needed */
+  margin: 0 auto;
+  }
+  .btn-choice {
+      font-size: 18px;
+      padding: 15px 20px;
+      color: white;
+  }
+
+  .base-button {
+      background-color: black;
+      border-color: black;
+      outline: none;
+    }
+  .base-button:hover, .base-button:focus, .base-button:active {
+  background-color: #d67609;
+  border-color: #d67609;
+  outline: none;
+  }
+</style>
+<div class="form-container">  <!-- Start of form-container div -->
+    <h2 class="center-text" style="padding-bottom: 30px;">Login</h2>
+    <div class="card wide-card">
+        <form method="post">
+            {% csrf_token %}
+            <!-- Start of form-floating for username -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="username" placeholder="Username" name="username" required>
+                <label for="username">Username</label>
+            </div>
+            <!-- Start of form-floating for password -->
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="password" placeholder="Password" name="password" required>
+                <label for="password">Password</label>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+        
+        <div class="text-center" style="padding-top: 20px;">  <!-- Start of text-center div -->
+            <p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
+                <hr>  <!-- Horizontal line -->
+            <button onclick="location.href='{% url 'register' %}'" class="btn btn-primary mt-3 text-left base-button btn-choice">Create an Account</button>
+        </div>
+    </div>
+</div> 
 {% endblock %}

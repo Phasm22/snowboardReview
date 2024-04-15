@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from .models import Snowboard, Terrain, Comment, Review, Size
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django import forms
 
@@ -70,3 +71,11 @@ class ReviewForm(forms.ModelForm):
             'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 10, 'step': '0.01'}),
             'riderWeight': forms.NumberInput(attrs={'min': 000, 'max': 500}),
         }
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs={'autocomplete': 'email'}))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # Add your custom validation here
+        return email

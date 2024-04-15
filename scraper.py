@@ -222,7 +222,7 @@ def get_links_from_user(num_links, url):
 
 if __name__ == "__main__":
     # URL of the page to scrape
-    url = "https://www.evo.com/shop/snowboard/snowboards/mens/womens/rpp_200"
+    url = "https://www.evo.com/shop/snowboard/snowboards/mens/womens/s_average-rating-desc/rpp_400"
 
     # Get the number of links from the user
     num_links = int(input("Enter the number of links you want to scrape: "))
