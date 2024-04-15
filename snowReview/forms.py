@@ -1,20 +1,21 @@
 from django.forms import ModelForm
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 from .models import Snowboard, Terrain, Comment, Review, Size
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django import forms
-
 class SnowboardForm(ModelForm):
     terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=True, widget=forms.CheckboxSelectMultiple())
     profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=True)
     rider = forms.ChoiceField(choices=Snowboard.SKILL, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
     sizes = forms.MultipleChoiceField(choices=[(i, i) for i in range(120, 191)], widget=forms.CheckboxSelectMultiple())
     desc = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), label='Description')
+    image = forms.ImageField(required=False)  # Add this line
 
     class Meta:
         model = Snowboard
-        fields =  ('name', 'season', 'terrain', 'profile', 'rider', 'sizes', 'desc',)
+        fields =  ('name', 'season', 'image', 'terrain', 'profile', 'rider', 'sizes', 'desc',)  # Add 'image' here
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'season': forms.NumberInput(attrs={'class': 'form-control', 'min': 1900, 'max': 2099}),
@@ -52,30 +53,34 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['comment_text']
+        
 class ReviewForm(forms.ModelForm):
+    snow24 = forms.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+            DecimalValidator(max_digits=4, decimal_places=2)
+        ]
+    )
+    snow7 = forms.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(200),
+            DecimalValidator(max_digits=4, decimal_places=2)
+        ]
+    )
     class Meta:
         model = Review
         fields = ['boardSize', 'date', 'conditions', 'snow24', 'snow7', 'riderHeight', 'riderWeight']
         labels = {
-        'snow24': 'Snowfall in the last 24 hours (inches)',
-        'snow7': 'Snowfall in the last 7 days (inches)',
-        'riderHeight': 'Rider Height (Inches)',
-        'riderWeight': 'Rider Weight (lbs)',
-        'boardSize': 'Board Size (cm)',}
-        # input sanitization
-        # For pop up calender
+            'snow24': 'Snowfall in the last 24 hours (inches)',
+            'snow7': 'Snowfall in the last 7 days (inches)',
+            'riderHeight': 'Rider Height (Inches)',
+            'riderWeight': 'Rider Weight (lbs)',
+            'boardSize': 'Board Size (cm)',
+        }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'snow24': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'snow7': forms.NumberInput(attrs={'min': 0, 'max': 200}),
-            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 10, 'step': '0.01'}),
-            'riderWeight': forms.NumberInput(attrs={'min': 000, 'max': 500}),
+            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 300, 'step': '0.01'}),
+            'riderWeight': forms.NumberInput(attrs={'min': 0, 'max': 500}),
         }
-
-class CustomPasswordResetForm(PasswordResetForm):
-    email = forms.EmailField(max_length=254, widget=forms.EmailInput(attrs={'autocomplete': 'email'}))
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        # Add your custom validation here
-        return email

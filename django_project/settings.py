@@ -50,9 +50,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mailersend.net'  # SMTP server
 EMAIL_PORT = 587  # SMTP port
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'MS_tzb4M1@tandonjenkins.com'  # SMTP username
-EMAIL_HOST_PASSWORD = 'MnVtcrSeiY1x8YHp'  # SMTP password
-DEFAULT_FROM_EMAIL = 'MS_tzb4M1@tandonjenkins.com'  # email to send from
+EMAIL_HOST_USER = ''  # SMTP username
+EMAIL_HOST_PASSWORD = ''  # SMTP password
+DEFAULT_FROM_EMAIL = 'MS_FzyRV0@tandonjenkins.com'  # email to send from
 
 TEMPLATES = [
     {

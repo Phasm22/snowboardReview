@@ -66,6 +66,8 @@ def scrape_website(website):
                 text = "Hybrid Camber"
             if text == "Directional Twin Shape":
                 text = "Directional Twin"
+            if text == "True Twin":
+                text = "True Twin"
 
             
             # Remove newline characters

@@ -5,6 +5,12 @@
     <h5>{{ snowboard.name }}</h5>
     <div class:"form-container">
         <form method="post" class="form-group">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Please correct the errors below:</strong>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
             {% csrf_token %}
             
             <div class="form-group">
@@ -21,15 +27,15 @@
             </div>
             <div class="form-group">
                 <label for="id_snow24">Snowfall in the last 24 hours (inches)</label>
-                <input type="number" class="form-control" id="id_snow24" name="snow24" placeholder="Enter snowfall in the last 24 hours" style="width: 40%;"style="width: 40%;" value="{{ form.snow24.value|default_if_none:'' }}">
+                <input type="text" class="form-control" id="id_snow24" name="snow24" placeholder="Enter snowfall in the last 24 hours" style="width: 40%;" value="{{ form.snow24.value|default_if_none:'' }}">
             </div>
             <div class="form-group">
                 <label for="id_snow7">Snowfall in the last 7 days (inches)</label>
-                <input type="number" class="form-control" id="id_snow7" name="snow7" placeholder="Enter snowfall in the last 7 days" style="width: 40%;"style="width: 40%;" value="{{ form.snow7.value|default_if_none:'' }}">
+                <input type="text" class="form-control" id="id_snow7" name="snow7" placeholder="Enter snowfall in the last 7 days" style="width: 40%;" value="{{ form.snow7.value|default_if_none:'' }}">
             </div>
             <div class="form-group">
                 <label for="id_riderHeight">Rider Height (Inches)</label>
-                <input type="number" class="form-control" id="id_riderHeight" name="riderHeight" placeholder="Enter rider height" style="width: 40%;"style="width: 40%;" value="{{ form.riderHeight.value|default_if_none:'' }}">
+                <input type="text" class="form-control" id="id_riderHeight" name="riderHeight" placeholder="Enter rider height" style="width: 40%;"style="width: 40%;" value="{{ form.riderHeight.value|default_if_none:'' }}">
             </div>
             <div class="form-group">
                 <label for="id_riderWeight">Rider Weight (lbs)</label>

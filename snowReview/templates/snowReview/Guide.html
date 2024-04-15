@@ -8,11 +8,29 @@
         align-items: center;
         height: 100vh; 
     }
+    
     .btn-group .btn {
         margin: 100px;
         padding: 100px; 
         
 
+    }        
+    
+    .btn-choice {
+        font-size: 12x;
+        padding: 15px 15px;
+        color: white;
+    }
+  
+    .base-button {
+        background-color: black;
+        border-color: black;
+        outline: none;
+      }
+    .base-button:hover, .base-button:focus, .base-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none;
     }
 
 </style>
@@ -76,7 +94,7 @@
         </div>
     </div>
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-primary mb-3 mt-3">Search</button>
+            <button type="submit" class="btn btn-primary mt-3 base-button btn-choice">Search</button>
         </div>
     </form>
 </div>

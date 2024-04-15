@@ -1,15 +1,11 @@
 import os
-from django.core.mail import send_mail
-from django.db.models import Q
 from django.shortcuts import redirect, render
-from django.utils.http import urlsafe_base64_encode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import ListView
-from django.utils.encoding import force_bytes
 from django.core.paginator import Paginator
 from django.views.generic import DetailView
 from django.views.generic.edit import FormView
@@ -20,13 +16,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import views as auth_views
 from .forms import GuideForm
 from snowReview.forms import SnowboardForm, CommentForm
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm, CustomPasswordResetForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
 from .models import Snowboard, Profile, Review, Comment
-from django.utils.http import urlsafe_base64_encode
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
-from django.core.mail import send_mail, BadHeaderError
-from django.template.loader import render_to_string
 
 # Set the DJANGO_SETTINGS_MODULE environment variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
@@ -74,36 +65,9 @@ def logout_view(request):
     messages.success(request, 'You have been logged out.')
     return redirect('home_view')
 
-# Password reset request
-def password_reset_request(request):
-    if request.method == "POST":
-        password_reset_form = CustomPasswordResetForm(request.POST)
-        if password_reset_form.is_valid():
-            data = password_reset_form.cleaned_data['email']
-            associated_users = User.objects.filter(Q(email=data))
-            if associated_users.exists():
-                for user in associated_users:
-                    subject = "Password Reset Requested"
-                    email_template_name = "registration/password_reset_email.txt"
-                    c = {
-                        "email": user.email,
-                        'domain': 'localhost:8000',
-                        'site_name': 'TheRealPowGuide',
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "user": user,
-                        'token': default_token_generator.make_token(user),
-                        'protocol': 'http',
-                    }
-                    email = render_to_string(email_template_name, c)
-                    try:
-                        send_mail(subject, email, 'MS_tzb4M1@tandonjenkins.com', [user.email], fail_silently=False)
-                    except BadHeaderError:
-                        return HttpResponse('Invalid header found.')
-                    return redirect("/password_reset/done/")
-    password_reset_form = CustomPasswordResetForm()
-    return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form": password_reset_form})
 
-
+def do_nothing(request):
+    return HttpResponse("This is a view that does nothing.")
 class PasswordResetDoneView(auth_views.PasswordResetDoneView):
     template_name = 'registration/password_reset_done.html'
 
@@ -163,11 +127,13 @@ def snowboard_view(request):
             if terrains:  # Only filter by terrain if terrains is not an empty list
                 snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
         if form.cleaned_data['shape']:
-            shapes = form.cleaned_data['shape']
+            shapes = [form.cleaned_data['shape']]  # Wrap the shape value in a list
             print(f"Shapes: {shapes}")  # Debug line
             if shapes:
                 snowboards = snowboards.filter(shape__in=shapes)
-                print(f"Snowboards after shape filter: {snowboards}")  # Debug line
+                print(f"Snowboards after shape filter: {snowboards.count()} snowboards found")  # Debug line
+                for snowboard in snowboards:
+                    print(f"Snowboard: {snowboard.name}, Shape: {snowboard.shape}")  # Debug line
 
     items_per_page = request.GET.get('items_per_page', 10)
     if not items_per_page:
@@ -189,15 +155,15 @@ def snowboard_view(request):
     return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': page_obj, 'total_items': snowboards.count()})
 
 def createSnowboard(request):
-    form = SnowboardForm()
-
     if request.method == 'POST':
-        form = SnowboardForm(request.POST)
+        form = SnowboardForm(request.POST, request.FILES)  # Add request.FILES here
         if form.is_valid():
             form.save()
             return redirect('snowboard-list')
         else:
             print(f"Form errors: {form.errors}")  # Debug line
+    else:
+        form = SnowboardForm()
 
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     return render(request, 'snowReview/addBoard_form.html', context)
