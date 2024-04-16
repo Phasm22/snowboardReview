@@ -69,7 +69,7 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     profile = Profile.objects.get(user=request.user)
-    comments = Comment.objects.filter(user=request.user)
+    comments = Comment.objects.filter(user=request.user).order_by('-updated_at')
     if profile.is_reviewer:
         reviews = Review.objects.filter(reviewer=profile)
     else:
@@ -236,9 +236,10 @@ def edit_comment(request, comment_id):
     else:
         messages.error(request, 'You do not have permission to edit this comment.')
         return redirect('snowboard-detail', pk=comment.snowboard.id)
+    
 # Delete Comment
-def delete_comment(request, snowboard_id):
-    comment = get_object_or_404(Comment, id=snowboard_id)
+def delete_comment(request, comment_id): 
+    comment = get_object_or_404(Comment, id=comment_id) 
     if request.user.is_staff or request.user == comment.user:
         comment.delete()
         messages.success(request, 'Comment Deleted')

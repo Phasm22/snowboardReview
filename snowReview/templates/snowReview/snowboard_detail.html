@@ -61,11 +61,11 @@
         border-color: black;
         outline: none !important;
         }
-        .back-button:hover, .back-button:focus, .back-button:active {
-        background-color: #d67609;
-        border-color: #d67609;
-        outline: none !important;
-        }
+    .back-button:hover, .back-button:focus, .back-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none !important;
+    }
     
 
 </style>
@@ -314,7 +314,7 @@
                         <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ comment.updated_at }}</p>
                         {% if user == comment.user or user.is_staff %}
                             <div>
-                                <a href="{% url 'edit-comment' comment.id %}" class="btn btn-primary btn-sm">Edit</a>
+                                <a href="{% url 'edit-comment' comment.id %}#accordionComments" class="btn btn-primary btn-sm">Edit</a>
                                 <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteCommentModal">Delete</button>
                             </div>
                         {% endif %}
@@ -365,10 +365,38 @@
 {% endif %}
 <!-- for keeping scroll positions after comment submissions-->
 {% if messages %}
+<div id="messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
     <script>
         window.location.hash = '#accordionComments';
     </script>
 {% endif %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Make the message sticky
+    $('#messages').css({
+        'position': 'fixed',
+        'top': '0',
+        'left': '5',
+        'right': '0',
+        'width': '100%',  // Adjust this value as needed
+        'margin': 'auto',
+        'z-index': '9999'
+    });
+
+    // Close the message after 5 seconds
+    setTimeout(function() {
+        $('#messages').fadeOut('fast');
+    }, 2000);  // Adjust this value as needed
+});
+</script>
 
 {% if review_posted %}
     <script>

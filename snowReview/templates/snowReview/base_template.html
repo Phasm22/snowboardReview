@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html lang="en">
  <head>
-  <head>
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
   {% load django_bootstrap5 %}
 
@@ -26,10 +25,10 @@
         align-items: left;
         padding: 20px;
       }
-      .no-padding {
+    .no-padding {
         padding-left: 0 !important;
         padding-right: 0 !important;
-      }
+    }
     .center-text {
       text-align: center;
     }
@@ -60,11 +59,6 @@
         opacity: 1;
     }
 
-    .back-button {
-    background-color: black;
-    border-color: black;
-    outline: none !important;
-    }
     .custom-font {
       font-family: "Work Sans", sans-serif;
       font-optical-sizing: auto;
@@ -75,12 +69,19 @@
     .custom-font a {
       color: inherit;
       text-decoration: none
-  }
-    .back-button:hover, .back-button:focus, .back-button:active {
+    }
+    .profile-button {
+    background-color: black;
+    border-color: black;
+    outline: none !important;
+    }
+
+    .profile-button:hover, .profile-button:focus, .profile-button:active {
     background-color: #d67609;
     border-color: #d67609;
     outline: none !important;
     }
+
     .form-container {
       width: 30%;
       margin: 0 auto;
@@ -146,11 +147,11 @@
     body, html {
     margin: 0;
     padding: 0;
-}
+    }
 
-.navbar-nav {
+    .navbar-nav {
     margin: 0;
-}
+    }
 
     @media (min-width: 992px) {
       .navbar-nav {
@@ -184,8 +185,8 @@
         <div class="user-info">
           <div style="display: flex; align-items: center;">
             <p style="margin-bottom: 0;"><strong> Hello, {{ user.username }}!</strong></p>
-            <a class="btn btn-info login-button" style="margin-right: 15px;" href="{% url 'logout_view' %}">Logout</a>
-            <a class="btn btn-info login-button" href="{% url 'profile_view' %}">Profile</a>
+            <a class="btn btn-danger login-button" style="margin-right: 15px;" href="{% url 'logout_view' %}">Logout</a>
+            <a class="btn btn-dark profile-button" href="{% url 'profile_view' %}">Profile</a>
         </div>
         </div>
       {% else %}

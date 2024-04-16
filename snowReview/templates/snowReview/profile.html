@@ -7,29 +7,45 @@
         border-color: black;
         color: white !important;
         outline: none !important;
-        }
-        .link-button:hover, .link-button:focus, .link-button:active {
+        padding: 5px 10px;
+    }
+    .link-button:hover, .link-button:focus, .link-button:active {
         background-color: #d67609;
         border-color: #d67609;
         outline: none !important;
-        }
-
+    }
+    .small-title {
+        font-size: 2.5em;
+    }
+    .scrollable-card {
+        overflow-y: auto;
+        max-height: 400px;
+        padding-top: 15.5rem;
+    }
 </style>
 <div class="container">
+    <h1 class="title">User Profile</h1>
     <div class="card custom-font bg-light">
-        <h1 class="title">User Profile</h1>
+    <h2 class="title small-title">User Information</h2>
         <p>Username: {{ user.username }}</p>
         <p>Email: {{ user.email }}</p>
-
-        <div class="card mb-3">
-            <h2 class="title">Comments</h2>
-            {% for comment in comments %}
-                <div class="card p-2 mb-3">
-                    <p>{{ comment.text }}</p>
-                    <p>Snowboard: {{ comment.snowboard.name }}</p>  <!-- Adjust 'name' to the actual field name in your Snowboard model -->
-                    <div class="text-left">
-                        <a href="{% url 'snowboard-detail' comment.snowboard.id %}#accordionComments" class="btn link-button">View Comment</a>
-                    </div>
+        
+        <hr>
+        
+        <h2 class="title small-title">Comments</h2>
+                <div class="card mb-3 mt-3 scrollable-card">
+                    {% for comment in comments %}
+                        <div class="card p-2 mb-3">
+                            <div class="card-header">
+                                <strong>{{ comment.snowboard.name }}</strong> 
+                              </div>
+                              <div class="card-body">
+                                <h5 class="card-title custom-font">Date: {{ comment.updated_at }} </h5>
+                                <p class="card-text"><strong>Text:</strong> {{ comment.comment_text }}</p>
+                                <div class="text-left">
+                                    <a href="{% url 'snowboard-detail' comment.snowboard.id %}#accordionComments" class="btn link-button">Go to comment</a>
+                                </div>
+                              </div>
                 </div>
             {% empty %}
                 <p>No comments found.</p>
@@ -37,15 +53,22 @@
         </div>
         
         {% if profile.is_reviewer %}
+        <hr>
+        
             <div class="card">
-                <h2 class="title">Reviews</h2>
+                <h2 class="title small-title">Reviews</h2>
                 {% for review in reviews %}
                     <div class="card mb-3">
                         <p>{{ review.text }}</p>
-                        <p>Date: {{ review.date }}</p>
-                        <p>Snowboard: {{ review.snowboard.name }}</p>  <!-- Adjust 'name' to the actual field name in your Snowboard model -->
+                        <p><strong>Date:</strong> {{ review.date }}</p>
+                        <p>
+                            <strong>
+                            Snowboard:
+                            </strong>
+                             {{ review.snowboard.name }}
+                            </p>
                         <div class="text-left">
-                            <a href="{% url 'snowboard-detail' review.snowboard.id %}#accordionComments" class="btn link-button">View Review</a>
+                            <a href="{% url 'snowboard-detail' review.snowboard.id %}#accordionComments" class="btn link-button">Go to review</a>
                         </div>
                     </div>
                 {% empty %}
@@ -53,6 +76,5 @@
                 {% endfor %}
             </div>
         {% endif %}
-    </div>
 </div>
 {% endblock %}
