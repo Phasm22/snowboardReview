@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import generic
-from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator, MaxLengthValidator
+
 # Create your models here.
 
 # Review objects
@@ -128,7 +129,7 @@ class Comment(models.Model):
     # comment section will be deleted if snowboard or profile is deleted
     snowboard = models.ForeignKey(Snowboard, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    comment_text = models.TextField(default="Add text here")  # add a field to store the comment text
+    comment_text = models.TextField(default="Add text here", validators=[MaxLengthValidator(200)])
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -136,6 +137,4 @@ class Comment(models.Model):
 
     def get_absolute_url(self):
         return reverse('snowboard-detail', args=[str(self.snowboard.id)])
-
-# shared attributes of users and reviewers
 

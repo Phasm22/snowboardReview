@@ -175,10 +175,14 @@ def scrape_website(website):
     # Associate the terrains with the snowboard
     for terrain_name in terrains:
         if terrain_name is not None:
+            # Delete the snowboard and return if the terrain is "Splitboarding"
+            if terrain_name == "Splitboarding":
+                snowboard.delete()
+                return
             terrain, created = Terrain.objects.get_or_create(name=terrain_name)
             snowboard.terrain.add(terrain)
     snowboard.save()
-
+    
 def get_links_from_user(num_links, url):
     # Load the product IDs from the file
     try:

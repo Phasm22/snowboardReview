@@ -81,6 +81,6 @@ class ReviewForm(forms.ModelForm):
         }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'riderHeight': forms.NumberInput(attrs={'min': 0, 'max': 300, 'step': '0.01'}),
-            'riderWeight': forms.NumberInput(attrs={'min': 0, 'max': 500}),
+            'riderHeight': forms.NumberInput(attrs={'min': 1, 'max': 300, 'step': '0.01'}),
+            'riderWeight': forms.NumberInput(attrs={'min': 1, 'max': 500}),
         }

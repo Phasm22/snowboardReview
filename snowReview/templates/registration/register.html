@@ -2,7 +2,17 @@
 {% extends 'snowReview/base_template.html' %}
 
 {% block content %}
-    <h2>Register</h2>
+<h2 class='title' style='padding-bottom: 1rem;'>Register</h2>
+{% if form.errors %}
+<div class="alert alert-danger" role="alert">
+    <strong>Form Errors:</strong>
+    {% for field in form %}
+        {% for error in field.errors %}
+            <p>{{ field.label }}: {{ error }}</p>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

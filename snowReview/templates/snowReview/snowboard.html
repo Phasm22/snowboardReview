@@ -41,11 +41,14 @@
         z-index: 1;
         bottom: 100%;
         left: 90%;
+        width: 200px;
         margin-left: -60px;
         opacity: 0;
         transition: opacity 0.5s;
     }
-
+    .item-container {
+        width: 15%;
+    }
     .tooltip-container:hover .tooltip-text {
         visibility: visible;
         opacity: 1;
@@ -55,27 +58,31 @@
     <h1 class="title">
         Snowboards
     </h1>
-    <div class="card mb-4 bg-light">
+    <div class="card mb-4 bg-light d-flex align-items-center mb-3 justify-content-start">
         <div class="row">
+            <div class="col-12">
+                <p>Total Results: {{ snowboards.paginator.count }}</p>
+            </div>
             <!-- form for paginator drop down-->
             <form method="get" style="padding-bottom: 20px;"> 
                 {% csrf_token %} 
-                <div class="item-container">  <!-- Start of item-container div -->
+                <!-- Include the current filters as hidden fields -->
+                {% for key, values in request.GET.lists %}
+                    {% if key != 'items_per_page' %}
+                        {% for value in values %} 
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <div class="item-container">
                     <label for="items_per_page">Items per page:</label>
-                    <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">  <!-- Select dropdown for items per page. The form is submitted when the selected option changes. -->
-                        <!-- Option for 10 items per page. It is selected if the current items_per_page parameter is "10". -->
+                    <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">
                         <option value="10" {% if request.GET.items_per_page == "10" %}selected{% endif %}>10</option>
                         <option value="20" {% if request.GET.items_per_page == "20" %}selected{% endif %}>20</option>
+                        <option value="90" {% if request.GET.items_per_page == "90" %}selected{% endif %}>90</option>
                     </select>
                 </div>
-                <!-- Hidden input for the rider parameter. Its value is the current rider parameter. -->
-                <input type="hidden" name="rider" value="{{ request.GET.rider }}">
-                <!-- For each terrain in the current terrain parameter... -->
-                {% for terrain in request.GET.terrain %}
-                    <!-- create a hidden input with the name "terrain" and the value of the current terrain. -->
-                    <input type="hidden" name="terrain" value="{{ terrain }}">
-                {% endfor %}
-            </form> 
+            </form>
         {% if snowboards %}
             <div class="row row-cols-1 row-cols-md-3 g-4">  <!-- Start of row div -->
                 {% for snowboard in snowboards %}
@@ -102,7 +109,9 @@
                 {% endfor %}
             </div>  <!-- End of row div -->
         {% else %}
+        <div class="text-center flex-grow-1 d-flex align-items-center justify-content-center">
             <p>No snowboards found.</p>
+        </div>
         {% endif %}
         <div class="container" style="text-align: left;">
             <nav aria-label="Page navigation example">

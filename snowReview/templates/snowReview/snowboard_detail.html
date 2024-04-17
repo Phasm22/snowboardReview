@@ -12,7 +12,14 @@
     font-style: normal;
     font-size: 2.5em;
     }
-
+    #comment_text {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        resize: vertical;
+    }
     .skill-icon {
         font-size: 2em;
     }
@@ -69,8 +76,24 @@
     
 
 </style>
-<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
+{% if form.errors %}
+    <div id="error-alert" class="alert alert-danger" role="alert">
+        {{ form.non_field_errors }}
+        {{ form.comment_text.errors }}
+    </div>
+{% endif %}
 
+<script>
+window.onload = function() {
+    if (!document.getElementById('error-alert')) {
+        // Replace 'myAccordion' with the ID of your accordion
+        var accordion = document.getElementById('myAccordion');
+        var event = new Event('click');
+        accordion.dispatchEvent(event);
+    }
+};
+</script>
+<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
 {% if user.is_authenticated and user.is_staff %}
     <button type="button" class="btn btn-danger mt-3 text-left delete-button" data-toggle="modal" data-target="#deleteModal">Delete Snowboard</button>
 {% endif %}
@@ -239,7 +262,7 @@
         <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionReviews">
             <div class="card-body custom-font" id="reviews">
                 {% for review in snowboard.review_set.all %}
-                    <div class="card mt-4">
+                    <div class="card bg-light mt-4">
                         <p><strong>Board Size:</strong> {{ review.boardSize }}</p>
                         <p><strong>Date:</strong> {{ review.date }}</p>
                         <p><strong>Conditions:</strong> {{ review.conditions }}</p>
@@ -308,7 +331,7 @@
         <div id="collapseComments" class="collapse" aria-labelledby="headingComments" data-parent="#accordionComments">
             <div class="card-body custom-font">
                 {% for comment in snowboard.comment_set.all %}
-                    <div class="card mt-4">
+                    <div class="card mt-4 bg-light">
                         <p style="padding-left: 10px">{{ comment.comment_text }}</p>
                         <small><i class="fas fa-user"></i> {{ comment.user.username }}</small>
                         <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ comment.updated_at }}</p>
@@ -351,18 +374,16 @@
     <div class="card mt-4">
         <div class="card-body">
             <h5 class="card-title board-title">Add a Comment</h5>
-            <form method="post">
+            <form id="comment-form" method="post" style="display: none;">
                 {% csrf_token %}
-                {{ form.comment_text }}
-                {% if comment %}
-                    <button type="submit" formaction="{% url 'edit-comment' comment.id %}" class="btn btn-primary mt-3 text-left back-button">Update</button>
-                {% else %}
-                    <button type="submit" formaction="{% url 'add-comment' snowboard.id %}#accordionComments" class="btn btn-primary mt-3 text-left back-button">Post</button>
-                {% endif %}
+                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control"></textarea>
+                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
             </form>
+            <button id="add-comment-button" class="btn btn-primary mt-3 text-left back-button">Add Comment</button>
         </div>
     </div>
 {% endif %}
+
 <!-- for keeping scroll positions after comment submissions-->
 {% if messages %}
 <div id="messages">
@@ -396,6 +417,15 @@ $(document).ready(function() {
         $('#messages').fadeOut('fast');
     }, 2000);  // Adjust this value as needed
 });
+</script>
+<script>
+window.onload = function() {
+    document.getElementById('add-comment-button').addEventListener('click', function() {
+        this.style.display = 'none';
+        document.getElementById('comment-form').style.display = 'block';
+        history.pushState({}, '', '{% url 'add-comment' snowboard.id %}');
+    });
+};
 </script>
 
 {% if review_posted %}

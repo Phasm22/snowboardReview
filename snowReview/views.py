@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from .forms import GuideForm
 from snowReview.forms import SnowboardForm, CommentForm
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
-from .models import Snowboard, Profile, Review, Comment
+from .models import Snowboard, Profile, Review, Comment, Terrain
 
 # Set the DJANGO_SETTINGS_MODULE environment variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
@@ -78,6 +78,7 @@ def profile_view(request):
 
 def do_nothing(request):
     return HttpResponse("This is a view that does nothing.")
+
 class PasswordResetDoneView(auth_views.PasswordResetDoneView):
     template_name = 'registration/password_reset_done.html'
 
@@ -100,7 +101,16 @@ class SnowboardListView(ListView):
     paginate_by = 15  # Default to 10 items per page
 
     def get_queryset(self):
-        return Snowboard.objects.all()
+        shape = self.request.GET.get('shape')
+        terrain_names = self.request.GET.getlist('terrain')
+        print(terrain_names)
+        queryset = Snowboard.objects.all()
+        if shape:
+            queryset = queryset.filter(shape=shape)
+        if terrain_names:
+            terrains = Terrain.objects.filter(name__in=terrain_names)
+            queryset = queryset.filter(terrain__in=terrains)
+        return queryset
 
     def get_paginate_by(self, queryset):
         items_per_page = self.request.GET.get('items_per_page', self.paginate_by)
@@ -111,10 +121,17 @@ class SnowboardListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
-        # only show the profile if the user is authenticated
+        # Split terrain names and remove duplicates
+        terrain_names = Terrain.objects.values_list('name', flat=True)
+        terrain_list = [name.split(', ') for name in terrain_names]
+        unique_terrains = list(set(sum(terrain_list, [])))
+        context['terrains'] = unique_terrains
+        context['selected_terrains'] = self.request.GET.getlist('terrain')
         if self.request.user.is_authenticated:
             context['profile'], created = Profile.objects.get_or_create(user=self.request.user)
         return context
+
+
 # using the built in django form view to filter the snowboards
 class GuideView(FormView):
     template_name = 'snowReview/Guide.html'

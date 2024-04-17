@@ -1,8 +1,7 @@
-# RUN LOCALLY
-# iterates through a list of credentials and makes reviews on different snowboards.
-
 import random
+import unittest
 from random import randint
+import testUserCreate
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -36,12 +35,12 @@ def login(driver, username, password):
     submit_button.click()
 
 
-def makeReview(driver, reviews):
+def makeReview(driver, reviews, bad_review=False):
     # navigate to snowboards page
     driver.get("http://172.16.0.106:8000/snowboard-list/")
 
     # iterate over the first 'reviews' number of snowboards
-    for i in range(3, reviews + 1):
+    for i in range(255, reviews + 1):
         print(f"i is now: {i}")
         try:
             # Navigate to review page
@@ -49,46 +48,109 @@ def makeReview(driver, reviews):
             driver.get(review_url)
 
             # code to make a review 
+            if not bad_review:
+                # Board Size
+                board_size = driver.find_element(By.ID, "id_boardSize")
+                board_size.clear()
+                size = randint(131, 169)
+                board_size.send_keys(size)
 
-            # Board Size
-            board_size = driver.find_element(By.ID, "id_boardSize")
-            size = randint(131, 169)
-            board_size.send_keys(size)
+                # Date
+                date = driver.find_element(By.ID, "id_date")
+                date.clear()
+                randMonth = randint(1, 12)
+                randDay = randint(1, 28)
+                date.send_keys(f"{randMonth:02d}-{randDay:02d}-2024")
 
-            # Date
-            date = driver.find_element(By.ID, "id_date")
-            randMonth = randint(1, 12)
-            randDay = randint(1, 28)
-            date.send_keys(f"{randMonth:02d}-{randDay:02d}-2024")
-
-            # Conditions
-            conditions_list = ["Bluebird", "Sunny", "Cloudy", "Powder", "Groomed", "Windy", "Snowing"]
-            random_condition = random.choice(conditions_list)
-        
-            conditions = driver.find_element(By.ID, "id_conditions")
-            conditions.send_keys(random_condition)
+                # Conditions
+                conditions_list = ["Bluebird", "Sunny", "Cloudy", "Powder", "Groomed", "Windy", "Snowing"]
+                random_condition = random.choice(conditions_list)
             
-            # Snowfall
-            snow24_value = random.randint(0, 10)
-            snow24 = driver.find_element(By.ID, "id_snow24")
-            snow24.send_keys(str(snow24_value))
-        
-            snow7_value = random.randrange(int(snow24_value), 20)
-            snow7 = driver.find_element(By.ID, "id_snow7")
-            snow7.send_keys(str(snow7_value))
+                conditions = driver.find_element(By.ID, "id_conditions")
+                conditions.clear()
+                conditions.send_keys(random_condition)
+                
+                # Snowfall
+                snow24_value = round(random.uniform(0, 10), 2)
+                snow24 = driver.find_element(By.ID, "id_snow24")
+                snow24.clear()
+                snow24.send_keys(str(snow24_value))
+                
+                snow7_value = round(random.uniform(snow24_value, 20), 2)
+                snow7 = driver.find_element(By.ID, "id_snow7")
+                snow7.clear()
+                snow7.send_keys(str(snow7_value))
+                # Height
+                rider_height = driver.find_element(By.ID, "id_riderHeight")
+                rider_height.clear()
+                rider_height.send_keys("70")
 
-            # Height
-            rider_height = driver.find_element(By.ID, "id_riderHeight")
-            rider_height.send_keys("70")
+                # Weight
+                rider_weight = driver.find_element(By.ID, "id_riderWeight")
+                rider_weight.clear()
+                rider_weight.send_keys("180")
 
-            # Weight
-            rider_weight = driver.find_element(By.ID, "id_riderWeight")
-            rider_weight.send_keys("180")
+                wait = WebDriverWait(driver, 10)
+                submit_button = wait.until(EC.element_to_be_clickable((By.ID, "submit-button")))
 
-            wait = WebDriverWait(driver, 10)
-            submit_button = wait.until(EC.element_to_be_clickable((By.ID, "submit-button")))
+                driver.execute_script("arguments[0].click();", submit_button)
+            
+            else:
+                # code to make a bad review
+                # Board Size
+                board_size = driver.find_element(By.ID, "id_boardSize")
+                board_size.clear()
+                board_size.send_keys(190)
 
-            driver.execute_script("arguments[0].click();", submit_button)
+                # Date
+                date = driver.find_element(By.ID, "id_date")
+                date.clear()
+                randMonth = randint(1, 12)
+                randDay = randint(1, 28)
+                date.send_keys(f"{randMonth:02d}-{randDay:02d}-2024")
+
+                # Conditions
+                conditions_list = ["Bluebird", "Sunny", "Cloudy", "Powder", "Groomed", "Windy", "Snowing"]
+                random_condition = random.choice(conditions_list)
+            
+                conditions = driver.find_element(By.ID, "id_conditions")
+                conditions.clear()
+                conditions.send_keys(random_condition)
+                
+                # Snowfall
+                snow24 = driver.find_element(By.ID, "id_snow24")
+                snow24.clear()
+                snow24.send_keys(str(300))
+                
+                snow7 = driver.find_element(By.ID, "id_snow7")
+                snow7.clear()
+                snow7.send_keys(str(700))
+
+                # Height
+                rider_height = driver.find_element(By.ID, "id_riderHeight")
+                rider_height.clear()
+                rider_height.send_keys("2")
+
+                # Weight
+                rider_weight = driver.find_element(By.ID, "id_riderWeight")
+                rider_weight.clear()
+                rider_weight.send_keys("2")
+
+                wait = WebDriverWait(driver, 10)
+                submit_button = wait.until(EC.element_to_be_clickable((By.ID, "submit-button")))
+
+                driver.execute_script("arguments[0].click();", submit_button)
+
+            # Check if the error message is present
+            error_message = driver.find_elements(By.XPATH, '//div[@class="alert alert-danger"]')
+
+            # If the error message is present, return False. Otherwise, return True.
+            if error_message:
+                print("Error message found")
+                result = False
+            else:
+                print("No error message found")
+                result = True
 
 
         except NoSuchElementException:
@@ -97,6 +159,44 @@ def makeReview(driver, reviews):
 
             # navigate back to the snowboards page
         driver.get("http://172.16.0.106:8000/snowboard-list/")  
+        return result
+    
+def makeComment(driver, snowboard_id, bad_comment=False):
+    # navigate to snowboards page
+    # url http://172.16.0.106:8000/snowboard/251/add_comment/#accordionComments
+    # replace 251 with snowboard_id
+    driver.get(f"http://172.16.0.106:8000/snowboard/{snowboard_id}/add_comment/")
+
+    # User input to click on the comment button
+    input("Click on the comment button and press enter to continue.")
+
+    # find the comment form
+    comment = driver.find_element(By.ID, 'comment-text')
+
+
+    # Add a comment to a snowboard review
+    if bad_comment:
+        # set comment to string longer than 500 characters
+        comment_text = "a" * 501
+    else:
+        comment_text = "This is a test comment."
+    comment.send_keys(comment_text)
+
+
+    # submit the comment
+    submit_button = driver.find_element(By.XPATH, '//button[@type="submit"]')
+    submit_button.click()
+
+    # Check if the error message is present
+    error_message = driver.find_elements(By.XPATH, '//div[@class="alert alert-danger"]')
+
+    # If the error message is present, return False. Otherwise, return True.
+    if error_message:
+        result = False
+    else:
+        result = True
+
+    return result
 
 def test_user_login_and_review():
     driver = webdriver.Chrome()
@@ -125,11 +225,60 @@ options = Options()
 options.add_argument("--headless")
 
 
-if __name__ == "__main__":
-    #test_user_login_and_review()
+class TestSnowReview(unittest.TestCase):
+    def test_makeReview(self):
+        user = "kathy_lopez"
+        password = "TestPassword123"
+        
+        driver = webdriver.Chrome()
+        login(driver, user, password)
+        
+        try:
+            result = makeReview(driver, 255)
+            bad_result = makeReview(driver, 255, True)
+            self.assertEqual(result, True)
+            print("Normal review passed.")
+            self.assertEqual(bad_result, False)
+            print("Bad review passed.")
+            print("All review tests passed!")
+        except AssertionError:
+            print("Test failed. makeReview did not return True.")
+            # Perform any necessary cleanup here
+        finally:
+            # Always quit the driver, even if the test fails
+            driver.quit()
 
-    user = "kathy_lopez"
-    password = "TestPassword123"
-    driver = webdriver.Chrome(options=options)
-    login(driver, user, password)
-    makeReview(driver, 60)
+    def test_makeComment(self):
+        user = "kathy_lopez"
+        password = "TestPassword123"
+        
+        driver = webdriver.Chrome()
+        login(driver, user, password)
+        
+        try:
+            result = makeComment(driver, 255)
+            bad_result = makeComment(driver, 255, True)
+            self.assertEqual(bad_result, False)
+            print("Bad comment passed.")
+            self.assertEqual(result, True)
+            print("Normal comment passed.")
+            print("All comment tests passed!")
+        except AssertionError:
+            print("Test failed. makeComment did not return True.")
+            # Perform any necessary cleanup here
+        finally:
+            # Always quit the driver, even if the test fails
+            driver.quit()
+
+    def test_UserCreate(self):
+        result = testUserCreate.test_user_create()
+        bad_result = testUserCreate.test_user_create(True)
+        self.assertEqual(result, True)
+        print("Normal user creation passed.")
+        self.assertEqual(bad_result, False)
+        print("Bad user creation passed.")
+        print("All user creation tests passed!")
+
+
+if __name__ == "__main__":
+    unittest.main()
