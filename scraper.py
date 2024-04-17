@@ -178,10 +178,12 @@ def scrape_website(website):
             # Delete the snowboard and return if the terrain is "Splitboarding"
             if terrain_name == "Splitboarding":
                 snowboard.delete()
+                print("Splitboard Deleted")
                 return
             terrain, created = Terrain.objects.get_or_create(name=terrain_name)
             snowboard.terrain.add(terrain)
     snowboard.save()
+    print("Snowboard Added!")
     
 def get_links_from_user(num_links, url):
     # Load the product IDs from the file

@@ -103,6 +103,8 @@ class SnowboardListView(ListView):
     def get_queryset(self):
         shape = self.request.GET.get('shape')
         terrain_names = self.request.GET.getlist('terrain')
+        season = self.request.GET.get('season', '')
+
         print(terrain_names)
         queryset = Snowboard.objects.all()
         if shape:
@@ -110,6 +112,8 @@ class SnowboardListView(ListView):
         if terrain_names:
             terrains = Terrain.objects.filter(name__in=terrain_names)
             queryset = queryset.filter(terrain__in=terrains)
+        if season:
+            queryset = queryset.filter(season=season)
         return queryset
 
     def get_paginate_by(self, queryset):
@@ -121,12 +125,15 @@ class SnowboardListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        context['shapes'] = [shape[0] for shape in Snowboard.SHAPES]
+        
         # Split terrain names and remove duplicates
         terrain_names = Terrain.objects.values_list('name', flat=True)
         terrain_list = [name.split(', ') for name in terrain_names]
         unique_terrains = list(set(sum(terrain_list, [])))
         context['terrains'] = unique_terrains
         context['selected_terrains'] = self.request.GET.getlist('terrain')
+        context['selected_season'] = self.request.GET.get('season', '')
         if self.request.user.is_authenticated:
             context['profile'], created = Profile.objects.get_or_create(user=self.request.user)
         return context
