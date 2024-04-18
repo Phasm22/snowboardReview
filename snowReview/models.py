@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import generic
+import logging
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator, MaxLengthValidator
 
 # Create your models here.
@@ -96,16 +97,18 @@ class Snowboard(models.Model):
     image = models.ImageField(upload_to='snowboards/', null=True, default='snowboards/blank.jpg')
     brand_image = models.ImageField(upload_to='brands/', null=True, blank=True)
 
-    # Overriding the default django delete method to delete the image files as well
-    def delete(self, *args, **kwargs):
-        # Delete the image and brand image files if they exist
-        if self.image:
-            self.image.delete(save=False)
-        if self.brand_image:
-            self.brand_image.delete(save=False)
 
-        # Call the "real" delete() method
-        # this is what deletes te snowboard instance
+    def delete(self, *args, **kwargs):
+        logger = logging.getLogger(__name__)
+        # Delete the image and brand image files if they exist
+        try:
+            if self.image:
+                self.image.delete(save=False)
+            if self.brand_image:
+                self.brand_image.delete(save=False)
+        except Exception as e:
+            logger.error(f"Error deleting image files for {self}: {e}")
+            
         super().delete(*args, **kwargs)
 
     def __str__(self):

@@ -123,6 +123,9 @@ class SnowboardListView(ListView):
         terrain_names = self.request.GET.getlist('terrain')
         # Get the 'season' parameter from the GET request, defaulting to an empty string if it's not present
         season = self.request.GET.get('season', '')
+        # Get the 'brand' parameter from the GET request as a list
+        brand_names = self.request.GET.getlist('brand')
+
 
         # Get all Snowboard objects
         queryset = Snowboard.objects.all()
@@ -143,6 +146,10 @@ class SnowboardListView(ListView):
         if season:
             # Filter the queryset to only include Snowboards from that season
             queryset = queryset.filter(season=season)
+        # If one or more brands were specified in the GET request
+        if brand_names:
+            # Filter the queryset to only include Snowboards with those brands
+            queryset = queryset.filter(brand__in=brand_names)
 
         # Return the filtered queryset
         return queryset
@@ -166,6 +173,12 @@ class SnowboardListView(ListView):
         context['user'] = self.request.user
         # Add a list of all possible snowboard shapes to the context
         context['shapes'] = [shape[0] for shape in Snowboard.SHAPES]
+        
+        # Get a unique list of all the brands, sorted alphabetically
+        all_brands = Snowboard.objects.values_list('brand', flat=True).distinct().order_by('brand')
+
+        # Get a unique list of all the brands
+        context['all_brands'] = all_brands
 
         # Get a list of all terrain names
         terrain_names = Terrain.objects.values_list('name', flat=True)
@@ -178,6 +191,9 @@ class SnowboardListView(ListView):
         # Add the list of selected terrains from the GET request to the context
         context['selected_terrains'] = self.request.GET.getlist('terrain')
         context['selected_season'] = self.request.GET.get('season', '')
+        # Add the list of selected brands from the GET request to the context
+        context['selected_brands'] = self.request.GET.getlist('brand')
+
 
         # If the user is authenticated
         if self.request.user.is_authenticated:

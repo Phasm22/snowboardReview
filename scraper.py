@@ -96,24 +96,26 @@ def scrape_website(website):
         # set to expert
         data['rider'] = "Expert"
 
-
     # get the sizes
     sizes = []
     for label in soup.find_all('label', {'class': 'pdp-selection-label'}):
-        size = label.find('span', {'class': 'pdp-selection-text pdp-selector'}).get('title')
-        size = size.replace('Select "', '').replace('"', '')  # Strip unnecessary parts
-        sizes.append(size)
+        size_element = label.find('span', {'class': 'pdp-selection-text pdp-selector'})
+        if size_element is not None:
+            size = size_element.get('title')
+            if size:
+                size = size.replace('Select "', '').replace('"', '')  # Strip unnecessary parts
+                sizes.append(size)
 
     # Print the name and season
-    print(f"Name: {name}")
-    print(f"Brand: {brand}")
-    print(f"Season: {season}")
-    print(f"Profile: {data.get('profile', 'Unknown')}")
-    print(f"Shape: {data.get('shape', 'Unknown')}")
-    print(f"Sizes: {sizes}")
-    print(f"Rider: {data.get('rider', 'Unknown')}")
-    print(f"Flex: {data.get('flex', 'Unknown')}")
-    print(f"Description: {data.get('desc', 'No description available')}")
+    # print(f"Name: {name}")
+    # print(f"Brand: {brand}")
+    # print(f"Season: {season}")
+    # print(f"Profile: {data.get('profile', 'Unknown')}")
+    # print(f"Shape: {data.get('shape', 'Unknown')}")
+    # print(f"Sizes: {sizes}")
+    # print(f"Rider: {data.get('rider', 'Unknown')}")
+    # print(f"Flex: {data.get('flex', 'Unknown')}")
+    # print(f"Description: {data.get('desc', 'No description available')}")
     print("\n\n")
 
 
@@ -134,6 +136,10 @@ def scrape_website(website):
             'brand': brand,
         }
     )
+    if created:
+        print(f"Created new Snowboard: {snowboard.name}")
+    else:
+        print(f"Snowboard already exists: {snowboard.name}")
 
     # Download the image and save it to the specified directory
     if image_url:
@@ -182,6 +188,19 @@ def scrape_website(website):
                 return
             terrain, created = Terrain.objects.get_or_create(name=terrain_name)
             snowboard.terrain.add(terrain)
+    
+    # Delete the snowboard if apart of a bundle
+    if '+' in snowboard.name:
+        snowboard.delete()
+        print("Bundle Deleted")
+        return
+
+    # Delete snowboard if used
+    if 'used' in snowboard.name.lower():
+        snowboard.delete()
+        print("Used Deleted")
+        return
+    
     snowboard.save()
     print("Snowboard Added!")
     
@@ -230,7 +249,7 @@ def get_links_from_user(num_links, url):
 
 if __name__ == "__main__":
     # URL of the page to scrape
-    url = "https://www.evo.com/shop/snowboard/snowboards/mens/womens/s_average-rating-desc/rpp_400"
+    url = "https://www.evo.com/shop/snowboard/snowboards/mens/womens/s_price-asc/rpp_400"
 
     # Get the number of links from the user
     num_links = int(input("Enter the number of links you want to scrape: "))

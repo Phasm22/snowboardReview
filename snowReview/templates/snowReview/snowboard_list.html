@@ -45,12 +45,27 @@
 
     }
     .item-container {
-        width: 60%;
+        width: 80%;
     }
+    .filter-container {
+        width: 160px !important;
+    }
+    .checkbox-menu li label {
+        display: block;
+        padding: 3px 10px;
+        clear: both;
+        font-weight: normal;
+        line-height: 1.42857143;
+        color: #333;
+        white-space: nowrap;
+        margin:0;
+        transition: background-color .4s ease;
+    }
+
     </style>   
     
     <!-- Back to top button -->
-    <button type="button" class="btn btn-primary btn-floating btn-lg base-button" id="btn-back-to-top">
+    <button type="button" class="btn btn-primary btn-floating btn-lg base-button" id="btn-back-to-top" style="z-index: 9999;">
         <i class="fas fa-arrow-up"></i>
       </button>
     <h1 class="title">
@@ -69,11 +84,11 @@
         </div>
         <div class="row">
             <div class="card bg-white mb-3">
-                <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center justify-content-start">
                     <form method="get" class="w-100">
                         <div class="row">
                             <!-- Paginator drop down -->
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="item-container mb-custom custom-font">
                                     <label for="items_per_page">Items per page:</label>
                                     <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">
@@ -85,7 +100,7 @@
                             </div>
 
                             <!-- Shape filter -->
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="shapeFilter"><strong>Filter by shape:</strong></label>
                                 <select class="form-select item-container" id="shapeFilter" name="shape">
                                     <option value="">All</option>
@@ -96,27 +111,17 @@
                             </div>
 
                             <!-- Terrain filter -->
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label><strong>Filter by terrain:</strong></label>
-                                <div class="row">
-                                    <div class="col">
-                                        {% for terrain in terrains %}
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="terrain" value="{{ terrain }}" id="terrain{{ forloop.counter }}" {% if terrain in selected_terrains %}checked{% endif %}>
-                                                <label class="form-check-label" for="terrain{{ forloop.counter }}">
-                                                    {{ terrain }}
-                                                </label>
-                                            </div>
-                                            {% if forloop.counter|divisibleby:3 %}
-                                                </div><div class="col">
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                                <select class="selectpicker filter-container" multiple data-live-search="true" name="terrain">
+                                    {% for terrain in terrains %}
+                                        <option value="{{ terrain }}" {% if terrain in selected_terrains %}selected{% endif %}>{{ terrain }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
 
                             <!-- Season filter -->
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label style="padding-left: 25px;"><strong>Filter by Season:</strong></label>
                                 <div class="row">
                                     <div class="col">
@@ -130,12 +135,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Brand filter -->
+                            <div class="col-md-2">
+                                <label><strong>Filter by brand:</strong></label>
+                                <select name="brand" id="brands" class="selectpicker filter-container" multiple="multiple" data-live-search="true">
+                                    {% for brand in all_brands %}
+                                        <option value="{{ brand }}"
+                                            {% if brand in selected_brands %}selected{% endif %}>
+                                            {{ brand }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="text-end">
                             <button type="submit" class="btn btn-primary text-left custom-font base-button btn-choice"><i class="fas fa-filter"></i> Filter</button>
+                                <a href="{% url 'snowboard-list' %}" class="btn btn-primary text-left custom-font base-button btn-choice">Clear</a>
+                            </form>
                         </div>
                     </form>
-                </div></div>
+                </div>
             </div>
             <div class="row row-cols-1 row-cols-md-3 g-4 col pl-3">  <!-- Start of row div -->
                 {% for snowboard in page_obj %}<div class="col">
@@ -202,5 +221,12 @@
             </nav>
         </div>
     </div>
-    <script src="{% static 'js/button.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+    });
+</script>
 {% endblock %}
