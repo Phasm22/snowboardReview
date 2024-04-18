@@ -31,20 +31,7 @@
     }
 
     .tooltip-text {
-        visibility: hidden;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        padding: 5px 0;
-        border-radius: 6px;
-        position: absolute;
-        z-index: 1;
-        bottom: 100%;
-        left: 90%;
         width: 200px;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.5s;
     }
     .item-container {
         width: 15%;
@@ -77,8 +64,8 @@
                 <div class="item-container">
                     <label for="items_per_page">Items per page:</label>
                     <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">
-                        <option value="10" {% if request.GET.items_per_page == "10" %}selected{% endif %}>10</option>
-                        <option value="20" {% if request.GET.items_per_page == "20" %}selected{% endif %}>20</option>
+                        <option value="12" {% if request.GET.items_per_page == "12" %}selected{% endif %}>12</option>
+                        <option value="24" {% if request.GET.items_per_page == "24" %}selected{% endif %}>24</option>
                         <option value="90" {% if request.GET.items_per_page == "90" %}selected{% endif %}>90</option>
                     </select>
                 </div>

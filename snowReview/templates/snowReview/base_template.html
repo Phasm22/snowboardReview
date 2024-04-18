@@ -185,12 +185,18 @@
         <div class="user-info">
           <div style="display: flex; align-items: center;">
             <p style="margin-bottom: 0;"><strong> Hello, {{ user.username }}!</strong></p>
-            <a class="btn btn-danger login-button" style="margin-right: 15px;" href="{% url 'logout_view' %}">Logout</a>
-            <a class="btn btn-dark profile-button" href="{% url 'profile_view' %}">Profile</a>
+            <a class="btn btn-danger login-button" style="margin-right: 15px;" href="{% url 'logout_view' %}">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </a>
+            <a class="btn btn-dark profile-button" href="{% url 'profile_view' %}"><i class="fas fa-user"></i> Profile</a>
         </div>
         </div>
       {% else %}
-      <a class="btn btn-info login-button" href="{% url 'login' %}">Login/Register</a>
+      <a class="btn btn-info login-button" href="{% url 'login' %}">
+        <i class="fas fa-sign-in-alt"></i>
+        Login/Register
+      </a>
       {% endif %}
     </div>
   </div>

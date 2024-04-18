@@ -24,11 +24,12 @@ admin_site.register(Profile, ProfileAdmin)
 class ReviewsAdmin(admin.ModelAdmin):
     list_display = ('reviewer', 'snowboard')
 
+# register the models with the admin site
 admin_site.register(Review, ReviewsAdmin)
-
 admin_site.register(Snowboard)
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('comment_text', 'user', 'snowboard')
 
+# register the comment model with the admin site
 admin_site.register(Comment, CommentAdmin)

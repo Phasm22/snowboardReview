@@ -5,23 +5,35 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django import forms
+
+# Form to add snowboard
 class SnowboardForm(ModelForm):
+    # Checkbox for terrain
     terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=True, widget=forms.CheckboxSelectMultiple())
     profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=True)
+
+    # Add the pretty form class
     rider = forms.ChoiceField(choices=Snowboard.SKILL, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    # Checkbox grid for sizes
     sizes = forms.MultipleChoiceField(choices=[(i, i) for i in range(120, 191)], widget=forms.CheckboxSelectMultiple())
+    
+    # Add the pretty form class
     desc = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), label='Description')
-    image = forms.ImageField(required=False)  # Add this line
+
+    # Option to add a pictrue
+    image = forms.ImageField(required=False)
 
     class Meta:
         model = Snowboard
-        fields =  ('name', 'season', 'image', 'terrain', 'profile', 'rider', 'sizes', 'desc',)  # Add 'image' here
+        fields =  ('name', 'season', 'image', 'terrain', 'profile', 'rider', 'sizes', 'desc',)
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'season': forms.NumberInput(attrs={'class': 'form-control', 'min': 1900, 'max': 2099}),
             'flex': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 10}),
         }
     
+    # clean (validate and normalize) the data 
     def clean_terrain(self):
         terrain = self.cleaned_data.get('terrain')
         return Terrain.objects.filter(name__in=terrain)
@@ -35,19 +47,27 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
 
 class GuideForm(forms.Form):
+    # none are required to show a empty filter
     rider = forms.ChoiceField(choices=Snowboard.SKILL, required=False)
     terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=False)
-    shape = forms.ChoiceField(choices=Snowboard.SHAPES, required=False)  # Changed 'SHAPE_CHOICES' to 'Snowboard.SHAPES'
-    profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=False)  # Changed 'PROFILE_CHOICES' to 'Snowboard.PROFILES'
+    shape = forms.ChoiceField(choices=Snowboard.SHAPES, required=False)
+    profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=False)
 
 class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
         model = User
         fields = ('username', 'password')
-
 class CommentForm(forms.ModelForm):
+    # Define a form field 'comment_text'
     comment_text = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave a comment here', 'id': 'floatingTextarea'})
+        # Use a Textarea widget for the field
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control',  # Set the CSS class to 'form-control'
+                'placeholder': 'Leave a comment here',  # Set the placeholder text
+                'id': 'floatingTextarea'  # Set the id of the textarea
+            }
+        )
     )
 
     class Meta:
@@ -55,6 +75,7 @@ class CommentForm(forms.ModelForm):
         fields = ['comment_text']
         
 class ReviewForm(forms.ModelForm):
+    # set min and max snow24
     snow24 = forms.DecimalField(
         validators=[
             MinValueValidator(0),
@@ -62,6 +83,8 @@ class ReviewForm(forms.ModelForm):
             DecimalValidator(max_digits=4, decimal_places=2)
         ]
     )
+
+    # set min and max for snow7
     snow7 = forms.DecimalField(
         validators=[
             MinValueValidator(0),
