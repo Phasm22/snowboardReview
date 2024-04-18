@@ -115,6 +115,36 @@
       text-decoration: none;
       color: inherit; 
     }
+    footer {
+      background: #252429;
+      padding-bottom: 0em;
+      position: static;
+      bottom: 0;
+      height: 50px;
+      color: #ffffff;
+    }
+    .footer {
+      position: relative;
+    }
+    .footer-links {
+      display: flex;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      gap: 9rem;
+      z-index: 1;
+    }
+    
+
+    .footer-links a {
+      color: grey;
+      text-decoration: none;
+      pointer-events: auto;
+    }
+    .footer-logo {
+      height: 50px; 
+    }
     .title-link:hover {
       text-decoration: none;
       color: inherit;
@@ -227,5 +257,19 @@
     </div>
   </div>
 </div>
+  <!--Footer Content Start-->
+  <footer class="footer">
+    <div class="text-left custom-font">
+      <img class="footer-logo" src="{% static 'images/logo.png' %}">
+      <i class="far fa-copyright"></i> 2024 All rights reserved
+    </div>
+    <div class="footer-links">
+      <a href="{% url 'index' %}">Home</a>
+      <a href="{% url 'guide' %}">Guide</a>
+      <a href="{% url 'snowboard-list' %}">Snowboards</a>
+    </div>
+    <div class="text-right custom-font">
+    </div>
+  </footer>
 </body>
 </html>
