@@ -487,6 +487,9 @@ $(document).ready(function() {
 });
 </script>
 <script>
+    var userIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
+</script>
+<script>
 window.onload = function() {
     // Check if the user is on the edit comment page
     var isEditCommentPage = window.location.href.includes('edit-comment');
@@ -504,64 +507,74 @@ window.onload = function() {
         addCommentButton.style.display = 'none';
         commentForm.style.display = 'block';
     } else {
-        addCommentButton.addEventListener('click', function() {
-            console.log('Add Comment Button Clicked');
-            this.style.display = 'none';
-            commentForm.style.display = 'block';
-            history.pushState({}, '', addCommentUrl);
-        });
-    }
-
-    // COde for votes
-    for (const btn of document.querySelectorAll('.vote')) {
-        btn.addEventListener('click', event => {
-            event.preventDefault();
-            const id = event.currentTarget.dataset.id;
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const currentTarget = event.currentTarget;
-            const originalVoteCount = parseInt(currentTarget.querySelector('.vote-count').textContent, 10);
-            const isUpvoted = btn.classList.contains('on');
-
-            // Make a POST request to the vote URL
-            fetch(`/vote/comment/${id}/${!isUpvoted}/`, {  // Toggle vote
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    if (currentTarget.classList.contains('on')) {
-                        console.log('Removing "on" class');
-                        currentTarget.classList.remove('on');
-                        currentTarget.classList.add('off');
-                    } else {
-                        console.log('Adding "on" class');
-                        currentTarget.classList.remove('off');
-                        currentTarget.classList.add('on');
-                    }
-                    currentTarget.querySelector('.vote-count').textContent = data.new_vote_count;  // Update vote count
-                } else {
-                    console.error('Vote failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+        if (addCommentButton) {
+            addCommentButton.addEventListener('click', function() {
+                console.log('Add Comment Button Clicked');
+                this.style.display = 'none';
+                commentForm.style.display = 'block';
+                history.pushState({}, '', addCommentUrl);
             });
-        });
-            // New code to check initial classes of vote buttons
-    document.querySelectorAll('.vote').forEach(voteButton => {
-        console.log(`Vote button ${voteButton.dataset.id} classes: ${voteButton.className}`);
-    });
+        }
     }
-}
 
+    // Code for votes
+    $(document).ready(function() {
+        for (const btn of document.querySelectorAll('.vote')) {
+            btn.addEventListener('click', event => {
+                event.preventDefault();
+        
+                // If the user is not logged in, redirect to the login page
+                if (!userIsAuthenticated) {
+                    window.location.href = '/login/';  // Replace '/login/' with your login page URL
+                    return;
+                }
+                
+                const id = event.currentTarget.dataset.id;
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const currentTarget = event.currentTarget;
+                const originalVoteCount = parseInt(currentTarget.querySelector('.vote-count').textContent, 10);
+                const isUpvoted = btn.classList.contains('on');
+
+                // Make a POST request to the vote URL
+                fetch(`/vote/comment/${id}/${!isUpvoted}/`, {  // Toggle vote
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (currentTarget.classList.contains('on')) {
+                            console.log('Removing "on" class');
+                            currentTarget.classList.remove('on');
+                            currentTarget.classList.add('off');
+                        } else {
+                            console.log('Adding "on" class');
+                            currentTarget.classList.remove('off');
+                            currentTarget.classList.add('on');
+                        }
+                        currentTarget.querySelector('.vote-count').textContent = data.new_vote_count;  // Update vote count
+                    } else {
+                        console.error('Vote failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+                // New code to check initial classes of vote buttons
+        document.querySelectorAll('.vote').forEach(voteButton => {
+            console.log(`Vote button ${voteButton.dataset.id} classes: ${voteButton.className}`);
+        });
+        }
+    });
+}
 </script>
 
 {% if review_posted %}

@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
- <head>
+  <head>
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
   {% load django_bootstrap5 %}
 
@@ -13,6 +13,50 @@
   <title>TheRealPowGuide</title>
   
   <style>
+
+    html {
+      position: relative;
+      min-height: 100%;
+    }
+    body {
+      /* Margin bottom by footer height */
+      margin-bottom: 50px;
+    }
+    .footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      /* Set the fixed height of the footer here */
+      height: 50px;
+      background: #252429;
+    border-top: 3px solid #252429;   
+    }
+    footer {
+      background: #252429;
+      padding-bottom: 0em;
+      height: 50px;
+      color: #ffffff;
+    }
+
+    .footer-links {
+      display: flex;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      gap: 9rem;
+      z-index: 1;
+    }
+    
+  
+    .footer-links a {
+      color: grey;
+      text-decoration: none;
+      pointer-events: auto;
+    }
+    .footer-logo {
+      height: 50px; 
+    }
     .snowboard-image {
       width: 250px;
       height: 250px;
@@ -115,36 +159,6 @@
       text-decoration: none;
       color: inherit; 
     }
-    footer {
-      background: #252429;
-      padding-bottom: 0em;
-      position: static;
-      bottom: 0;
-      height: 50px;
-      color: #ffffff;
-    }
-    .footer {
-      position: relative;
-    }
-    .footer-links {
-      display: flex;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      gap: 9rem;
-      z-index: 1;
-    }
-    
-
-    .footer-links a {
-      color: grey;
-      text-decoration: none;
-      pointer-events: auto;
-    }
-    .footer-logo {
-      height: 50px; 
-    }
     .title-link:hover {
       text-decoration: none;
       color: inherit;
@@ -173,10 +187,6 @@
     }
     .login-button {
       position: relative;
-    }
-    body, html {
-    margin: 0;
-    padding: 0;
     }
 
     .navbar-nav {

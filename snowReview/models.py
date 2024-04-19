@@ -143,9 +143,10 @@ class Comment(models.Model):
         return self.vote_set.filter(value=False).count()
 
     def has_upvoted(self, user):
-        has_upvoted = self.vote_set.filter(profile=user.profile, value=True).exists()
-        #print(f"User {user.username} has_upvoted comment {self.id}: {has_upvoted}")
-        return has_upvoted
+        if user.is_authenticated:
+            return Vote.objects.filter(profile=user.profile, comment=self).exists()
+        else:
+            return False
 
     def has_downvoted(self, user):
         return self.vote_set.filter(profile=user.profile, value=False).exists()
@@ -158,8 +159,8 @@ class Comment(models.Model):
 
 class Vote(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, blank=True)
     value = models.BooleanField(null=True)  # True for thumbs up, False for thumbs down, NULL allowed
 
     def get_absolute_url(self):
