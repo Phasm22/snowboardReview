@@ -1,4 +1,5 @@
 {% extends 'snowReview/base_template.html' %}
+{% load static %}
 {% load multiply %}
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -6,11 +7,55 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <style>
-.board-title {
-    font-family: "Shadows Into Light", cursive;
-    font-weight: 600;
-    font-style: normal;
-    font-size: 2.5em;
+    .board-title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 2.5em;
+        }
+    .divider {
+        margin: 0 10px; /* add space on the left and right of the divider */
+    }
+    .vote-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .vote-card {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 150px;
+        height: 50px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .vote.on {
+        margin-left: 10px;
+    }
+
+    .vote {
+        display: flex; /* change this line */
+        flex-direction: row; /* add this line */
+        cursor: pointer;
+        color: #687074;
+        z-index: 1;
+        position: relative;
+    }
+
+    .vote i {
+    }
+
+    .vote-count {
+        margin-left: 10px;
+    }
+
+    .vote.on {
+        color: #f48024 !important;
     }
     #comment_text {
         width: 100%;
@@ -19,6 +64,13 @@
         border-radius: 4px;
         box-sizing: border-box;
         resize: vertical;
+    }
+    .comment-card {
+        position: relative;
+    }
+    .review-button-container,
+    .comment-button-container {
+        text-align: right;
     }
     .skill-icon {
         font-size: 2em;
@@ -274,7 +326,7 @@ window.onload = function() {
                         <div class="d-flex justify-content-between align-items-baseline">
                             <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ review.updated_at }}</p>
                             {% if user == review.reviewer.user or user.is_staff %}
-                            <div>
+                            <div class="review-button-container">
                                 <a href="{% url 'edit-review' review.id %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a>
                                 <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteReviewModal"><i class="fas fa-trash-alt"></i> Delete</button>
                             </div>
@@ -330,13 +382,13 @@ window.onload = function() {
         </div>
         <div id="collapseComments" class="collapse" aria-labelledby="headingComments" data-parent="#accordionComments">
             <div class="card-body custom-font">
-                {% for comment in snowboard.comment_set.all %}
-                    <div class="card mt-4 bg-light">
+                {% for comment in comments %}
+                    <div class="card comment-card mt-4 bg-light">
                         <p style="padding-left: 10px">{{ comment.comment_text }}</p>
                         <small><i class="fas fa-user"></i> {{ comment.user.username }}</small>
                         <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ comment.updated_at }}</p>
                         {% if user == comment.user or user.is_staff %}
-                            <div>
+                            <div class="comment-button-container">
                                 <a href="{% url 'edit-comment' comment.id %}#accordionComments" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a>
                                 <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteCommentModal"><i class="fas fa-trash-alt"></i> Delete</button>
                             </div>
@@ -360,6 +412,21 @@ window.onload = function() {
                                 </div>
                             </div>
                         </div>
+                        <div class="card vote-card">
+                            <div class="card-body">
+                                <div class="vote-container"> <!-- Add this div -->
+                                    <a href="#" class="{% if comment.has_upvoted %}vote on{% else %}vote off{% endif %}" data-id="{{ comment.id }}">
+                                        <i class="far fa-thumbs-up"></i> <!-- Thumbs up icon -->
+                                        <span class="vote-count">{{ comment.upvotes }}</span>
+                                    </a>
+                                    <span class="divider">|</span> <!-- Vertical divider -->
+                                    <a href="#" class="{% if comment.has_downvoted %}vote on{% else %}vote off{% endif %}" data-id="{{ comment.id }}">
+                                        <i class="far fa-thumbs-down"></i> <!-- Thumbs down icon -->
+                                        <span class="vote-count">{{ comment.downvotes }}</span>
+                                    </a>
+                                </div> <!-- Close the div -->
+                            </div>
+                        </div>
                     </div>
                 {% empty %}
                     <p>No comments yet.</p>
@@ -376,7 +443,8 @@ window.onload = function() {
             <h5 class="card-title board-title">Add a Comment</h5>
             <form id="comment-form" method="post" style="display: none;">
                 {% csrf_token %}
-                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control">{{ form.comment_text.value }}</textarea>                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
+                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control">{{ form.comment_text.value }}</textarea>                
+                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
             </form>
             <button id="add-comment-button" class="btn btn-primary mt-3 text-left back-button"><i class="fas fa-plus"></i> Add Comment</button>
         </div>
@@ -400,6 +468,7 @@ window.onload = function() {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
+    // sticky error banner
     // Make the message sticky
     $('#messages').css({
         'position': 'fixed',
@@ -425,18 +494,74 @@ window.onload = function() {
     var addCommentButton = document.getElementById('add-comment-button');
     var commentForm = document.getElementById('comment-form');
 
+    var addCommentUrl = '{% url 'add-comment' snowboard.id %}';
+
+    console.log('Add Comment Button:', addCommentButton);
+    console.log('Comment Form:', commentForm);
+
     // If the user is on the edit comment page, hide the add comment button and show the comment form
     if (isEditCommentPage) {
         addCommentButton.style.display = 'none';
         commentForm.style.display = 'block';
     } else {
         addCommentButton.addEventListener('click', function() {
+            console.log('Add Comment Button Clicked');
             this.style.display = 'none';
             commentForm.style.display = 'block';
-            history.pushState({}, '', '{% url 'add-comment' snowboard.id %}');
+            history.pushState({}, '', addCommentUrl);
         });
     }
-};
+
+    // COde for votes
+    for (const btn of document.querySelectorAll('.vote')) {
+        btn.addEventListener('click', event => {
+            event.preventDefault();
+            const id = event.currentTarget.dataset.id;
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const currentTarget = event.currentTarget;
+            const originalVoteCount = parseInt(currentTarget.querySelector('.vote-count').textContent, 10);
+            const isUpvoted = btn.classList.contains('on');
+
+            // Make a POST request to the vote URL
+            fetch(`/vote/comment/${id}/${!isUpvoted}/`, {  // Toggle vote
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (currentTarget.classList.contains('on')) {
+                        console.log('Removing "on" class');
+                        currentTarget.classList.remove('on');
+                        currentTarget.classList.add('off');
+                    } else {
+                        console.log('Adding "on" class');
+                        currentTarget.classList.remove('off');
+                        currentTarget.classList.add('on');
+                    }
+                    currentTarget.querySelector('.vote-count').textContent = data.new_vote_count;  // Update vote count
+                } else {
+                    console.error('Vote failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+            // New code to check initial classes of vote buttons
+    document.querySelectorAll('.vote').forEach(voteButton => {
+        console.log(`Vote button ${voteButton.dataset.id} classes: ${voteButton.className}`);
+    });
+    }
+}
+
 </script>
 
 {% if review_posted %}

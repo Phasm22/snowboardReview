@@ -134,6 +134,21 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment_text = models.TextField(default="Add text here", validators=[MaxLengthValidator(200)])
     updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    def upvotes(self):
+        return self.vote_set.filter(value=True).count()
+    
+    def downvotes(self):
+        return self.vote_set.filter(value=False).count()
+
+    def has_upvoted(self, user):
+        has_upvoted = self.vote_set.filter(profile=user.profile, value=True).exists()
+        #print(f"User {user.username} has_upvoted comment {self.id}: {has_upvoted}")
+        return has_upvoted
+
+    def has_downvoted(self, user):
+        return self.vote_set.filter(profile=user.profile, value=False).exists()
 
     def __str__(self):
         return f"{self.user.username}'s comment on {self.snowboard.name}"
@@ -141,3 +156,16 @@ class Comment(models.Model):
     def get_absolute_url(self):
         return reverse('snowboard-detail', args=[str(self.snowboard.id)])
 
+class Vote(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True)
+    value = models.BooleanField(null=True)  # True for thumbs up, False for thumbs down, NULL allowed
+
+    def get_absolute_url(self):
+        if self.comment:
+            return reverse('snowboard-detail', args=[str(self.comment.id)])
+        elif self.review:
+            return reverse('snowboard-detail', args=[str(self.review.id)])
+        else:
+            return reverse('home_view')

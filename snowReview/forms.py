@@ -8,6 +8,30 @@ from django import forms
 
 # Form to add snowboard
 class SnowboardForm(ModelForm):
+    """
+    A Django form for creating and updating Snowboard instances.
+
+    This form is a ModelForm for the Snowboard model. It includes MultipleChoiceFields for 
+    terrain and sizes, ChoiceFields for profile and rider skill, a CharField for description, 
+    and an ImageField for the snowboard image. The 'terrain', 'profile', 'rider', and 'sizes' 
+    fields use custom widgets, and the 'rider' and 'desc' fields use the 'form-control' CSS class.
+
+    The Meta class specifies the model, fields, and widgets to use for this form. The 'name', 
+    'season', and 'flex' fields use the 'form-control' CSS class, and the 'season' and 'flex' 
+    fields have min and max attributes.
+
+    The 'clean_terrain' and 'clean_sizes' methods are used to validate and normalize the 'terrain' 
+    and 'sizes' fields, respectively.
+
+    Attributes:
+        terrain (forms.MultipleChoiceField): The types of terrain the snowboard is suitable for.
+        profile (forms.ChoiceField): The profile of the snowboard.
+        rider (forms.ChoiceField): The skill level of the rider.
+        sizes (forms.MultipleChoiceField): The available sizes of the snowboard.
+        desc (forms.CharField): The description of the snowboard.
+        image (forms.ImageField): The image of the snowboard.
+    """
+    
     # Checkbox for terrain
     terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=True, widget=forms.CheckboxSelectMultiple())
     profile = forms.ChoiceField(choices=Snowboard.PROFILES, required=True)
@@ -47,6 +71,20 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
 
 class GuideForm(forms.Form):
+    """
+    A Django form for filtering snowboards based on rider skill, terrain, shape, and profile.
+
+    This form includes ChoiceFields for rider skill, snowboard shape, and snowboard profile, 
+    and a MultipleChoiceField for terrain. None of the fields are required, allowing for an 
+    empty filter.
+
+    Attributes:
+        rider (forms.ChoiceField): The skill level of the rider.
+        terrain (forms.MultipleChoiceField): The types of terrain the snowboard is suitable for.
+        shape (forms.ChoiceField): The shape of the snowboard.
+        profile (forms.ChoiceField): The profile of the snowboard.
+    """
+
     # none are required to show a empty filter
     rider = forms.ChoiceField(choices=Snowboard.SKILL, required=False)
     terrain = forms.MultipleChoiceField(choices=Terrain.TERRAIN_CHOICES, required=False)
@@ -58,6 +96,24 @@ class CustomAuthenticationForm(AuthenticationForm):
         model = User
         fields = ('username', 'password')
 class CommentForm(forms.ModelForm):
+    """
+    A Django form for creating and updating Review instances.
+
+    This form is a ModelForm for the Review model. It includes fields for board size, date, 
+    conditions, snowfall in the last 24 hours and 7 days, rider height, and rider weight.
+
+    The snow24 and snow7 fields are DecimalFields with custom validators to ensure the entered 
+    values are within a specific range and have a specific number of digits and decimal places.
+
+    The Meta class specifies the model, fields, labels, and widgets to use for this form. The date 
+    field uses a DateInput widget with a 'date' type, and the riderHeight and riderWeight fields 
+    use NumberInput widgets with min and max attributes.
+
+    Attributes:
+        snow24 (forms.DecimalField): Snowfall in the last 24 hours (in inches).
+        snow7 (forms.DecimalField): Snowfall in the last 7 days (in inches).
+    """
+
     # Define a form field 'comment_text'
     comment_text = forms.CharField(
         # Use a Textarea widget for the field
@@ -75,6 +131,23 @@ class CommentForm(forms.ModelForm):
         fields = ['comment_text']
         
 class ReviewForm(forms.ModelForm):
+    """
+    A Django form for creating and updating Review instances.
+
+    This form is a ModelForm for the Review model. It includes fields for board size, date, 
+    conditions, snowfall in the last 24 hours and 7 days, rider height, and rider weight.
+
+    The snow24 and snow7 fields are DecimalFields with custom validators to ensure the entered 
+    values are within a specific range and have a specific number of digits and decimal places.
+
+    The Meta class specifies the model, fields, labels, and widgets to use for this form. The date 
+    field uses a DateInput widget with a 'date' type, and the riderHeight and riderWeight fields 
+    use NumberInput widgets with min and max attributes.
+
+    Attributes:
+        snow24 (forms.DecimalField): Snowfall in the last 24 hours (in inches).
+        snow7 (forms.DecimalField): Snowfall in the last 7 days (in inches).
+    """
     # set min and max snow24
     snow24 = forms.DecimalField(
         validators=[

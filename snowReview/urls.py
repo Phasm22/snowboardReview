@@ -46,5 +46,8 @@ path('snowboard/<int:snowboard_id>/add_comment/', views.add_comment, name='add-c
 path('edit-comment/<int:comment_id>/', views.edit_comment, name='edit-comment'),
 path('delete-comment/<int:comment_id>/', views.delete_comment, name='delete-comment'),
 
+# Votes
+path('vote/<str:type>/<int:id>/<str:upvote>/', views.vote, name='vote'),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

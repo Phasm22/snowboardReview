@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.core.paginator import Paginator
@@ -12,21 +13,35 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from .forms import GuideForm
 from snowReview.forms import SnowboardForm, CommentForm
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
-from .models import Snowboard, Profile, Review, Comment, Terrain
+from .models import Snowboard, Profile, Review, Comment, Terrain, Vote
 
 # Set the DJANGO_SETTINGS_MODULE environment variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
 
 # Reviewer decorator (Similar to login_required) but also checks for bool reviewer
 def reviewer_required(view_func):
-    @login_required
+    """
+    Decorator to ensure the user is logged in and has reviewer permissions.
+
+    This decorator first checks if the user is logged in by using the `login_required` decorator.
+    If the user is logged in, it checks if the user is a reviewer.
+    If the user is not a reviewer, it displays an error message and redirects the user to the login page.
+
+    Parameters:
+    view_func (function): The view function to decorate.
+
+    Returns:
+    function: The decorated view function.
+    """
+    @login_required(login_url='login')
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.profile.is_reviewer:
             messages.error(request, 'You do not have the necessary permissions to perform this action.')
-            return redirect('home_view')
+            return redirect('login')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -36,7 +51,7 @@ def staff_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_staff:
             messages.error(request, 'You do not have the necessary permissions to perform this action.')
-            return redirect('home_view')
+            return redirect('login')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -151,6 +166,17 @@ class PasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 
 class SnowboardDetailView(DetailView):
     model = Snowboard
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comments = list(Comment.objects.filter(snowboard=self.object))  # Convert QuerySet to list
+        for comment in comments:
+            comment.has_upvoted = comment.has_upvoted(self.request.user)
+            print(f"Comment {comment.id} has_upvoted: {comment.has_upvoted}")  # Debug line
+        context['comments'] = comments
+        for comment in context['comments']:
+            print(f"Context: Comment {comment.id} has_upvoted: {comment.has_upvoted}")
+        return context
 
 class SnowboardListView(ListView):
     """
@@ -631,3 +657,59 @@ def edit_review(request, review_id):
         messages.error(request, 'You are not authorized to edit this review')
         return redirect('snowboard-detail', review.snowboard.id)
 
+@login_required(login_url='login')
+def vote(request, type, id, upvote):
+    """
+    Handles voting on comments or reviews.
+
+    This view requires the user to be logged in. If the request method is POST,
+    it tries to get or create a Vote instance associated with the current user's
+    profile and the specified comment or review.
+
+    If a Vote instance already exists, it updates the vote value if it's different
+    from the new vote value. If a Vote instance doesn't exist, it creates one with
+    the new vote value.
+
+    After handling the vote, it redirects the user to the page of the comment or
+    review. If the request method is not POST, it redirects the user to the home page.
+
+    Parameters:
+    request (HttpRequest): The request instance.
+    type (str): The type of the object to vote on ('comment' or 'review').
+    id (int): The id of the object to vote on.
+    upvote (bool): The vote value (True for thumbs up, False for thumbs down).
+
+    Returns:
+    HttpResponse: The response instance.
+    """
+    if request.method == 'POST':
+        try:
+            upvote = upvote.lower() == 'true'  # Convert upvote to boolean
+
+            vote, created = Vote.objects.get_or_create(
+                profile=request.user.profile,
+                comment_id=id if type == 'comment' else None,
+                review_id=id if type == 'review' else None,
+                defaults={'value': upvote},
+            )
+
+            if not created and vote.value != upvote:
+                vote.value = upvote
+                vote.save()
+
+            if type == 'comment':
+                new_vote_count = Comment.objects.get(id=id).upvotes()
+            elif type == 'review':
+                new_vote_count = Review.objects.get(id=id).upvotes()
+            else:
+                return JsonResponse({'success': False, 'error': 'Invalid type'})
+
+            return JsonResponse({'success': True, 'new_vote_count': new_vote_count})
+
+        except ObjectDoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Object not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})

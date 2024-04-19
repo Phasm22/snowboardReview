@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, Review, Snowboard, Comment
+from .models import Profile, Review, Snowboard, Comment, Vote
 
 # For customizing the admin site
 class MyAdminSite(admin.AdminSite):
@@ -33,3 +33,8 @@ class CommentAdmin(admin.ModelAdmin):
 
 # register the comment model with the admin site
 admin_site.register(Comment, CommentAdmin)
+
+class VoteAdmin(admin.ModelAdmin):
+    list_display = ('profile', 'comment', 'value')
+
+admin_site.register(Vote, VoteAdmin)
