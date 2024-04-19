@@ -77,6 +77,7 @@ def loginUser(driver, username, password):
     return result
 
     
+# Python
 def test_user_create(badTest=False):
     # create a new Chrome session
     driver = webdriver.Chrome()
@@ -88,11 +89,11 @@ def test_user_create(badTest=False):
         result = createUser(driver)
     
     if isinstance(result, bool) and not result:
-        print("User creation failed.")
-        # Perform any necessary cleanup here
-    else:
-        username, password = result
+        print("from testUserCreate: Error creating user. Exiting...")
+        driver.quit()
+        return False
 
+    username, password = result
     print(f'\nusername: {username}')
 
     # Log in with the new user

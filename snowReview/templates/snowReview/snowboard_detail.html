@@ -376,8 +376,7 @@ window.onload = function() {
             <h5 class="card-title board-title">Add a Comment</h5>
             <form id="comment-form" method="post" style="display: none;">
                 {% csrf_token %}
-                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control"></textarea>
-                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
+                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control">{{ form.comment_text.value }}</textarea>                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
             </form>
             <button id="add-comment-button" class="btn btn-primary mt-3 text-left back-button"><i class="fas fa-plus"></i> Add Comment</button>
         </div>
@@ -407,24 +406,36 @@ $(document).ready(function() {
         'top': '0',
         'left': '5',
         'right': '0',
-        'width': '100%',  // Adjust this value as needed
+        'width': '100%',
         'margin': 'auto',
         'z-index': '9999'
     });
 
-    // Close the message after 5 seconds
+    // Close the message
     setTimeout(function() {
         $('#messages').fadeOut('fast');
-    }, 2000);  // Adjust this value as needed
+    }, 2000);
 });
 </script>
 <script>
 window.onload = function() {
-    document.getElementById('add-comment-button').addEventListener('click', function() {
-        this.style.display = 'none';
-        document.getElementById('comment-form').style.display = 'block';
-        history.pushState({}, '', '{% url 'add-comment' snowboard.id %}');
-    });
+    // Check if the user is on the edit comment page
+    var isEditCommentPage = window.location.href.includes('edit-comment');
+    // Get the add comment button and the comment form
+    var addCommentButton = document.getElementById('add-comment-button');
+    var commentForm = document.getElementById('comment-form');
+
+    // If the user is on the edit comment page, hide the add comment button and show the comment form
+    if (isEditCommentPage) {
+        addCommentButton.style.display = 'none';
+        commentForm.style.display = 'block';
+    } else {
+        addCommentButton.addEventListener('click', function() {
+            this.style.display = 'none';
+            commentForm.style.display = 'block';
+            history.pushState({}, '', '{% url 'add-comment' snowboard.id %}');
+        });
+    }
 };
 </script>
 

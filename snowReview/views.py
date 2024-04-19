@@ -20,6 +20,26 @@ from .models import Snowboard, Profile, Review, Comment, Terrain
 # Set the DJANGO_SETTINGS_MODULE environment variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_project.settings'
 
+# Reviewer decorator (Similar to login_required) but also checks for bool reviewer
+def reviewer_required(view_func):
+    @login_required
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.profile.is_reviewer:
+            messages.error(request, 'You do not have the necessary permissions to perform this action.')
+            return redirect('home_view')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+# Checks if user is staff
+def staff_required(view_func):
+    @login_required(login_url='login')
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(request, 'You do not have the necessary permissions to perform this action.')
+            return redirect('home_view')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
 # Create your views here.
 def index(request):
     # active query set
@@ -36,6 +56,19 @@ def home_view(request):
 
 # login page
 def login_view(request):
+    """
+    Handle user login.
+
+    This view handles both the GET and POST methods. On GET, it displays an empty login form.
+    On POST, it validates the form, and if valid, logs the user in and redirects to the home page.
+
+    Parameters:
+    request (HttpRequest): The request object.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the home page. On GET, it's a render of the login form.
+    """
+    
     # Check if the request method is POST
     if request.method == 'POST':
         # Create an instance of CustomAuthenticationForm with the POST data
@@ -76,6 +109,19 @@ def logout_view(request):
 # The login_required decorator ensures that only logged-in users can access this view
 @login_required
 def profile_view(request):
+    """
+    Display the profile of the current user.
+
+    This view is only accessible to logged-in users. It retrieves the Profile object for the current user, as well as all Comment objects associated with the user.
+    If the user is a reviewer, it also retrieves all Review objects associated with the user. It then renders the 'profile.html' template with these objects as context variables.
+
+    Parameters:
+    request (HttpRequest): The request object.
+
+    Returns:
+    HttpResponse: The response object. A render of the 'profile.html' template with the 'comments', 'reviews', and 'profile' context variables.
+    """
+
     # Get the Profile object for the current user
     profile = Profile.objects.get(user=request.user)
     # Get all Comment objects for the current user, ordered by 'updated_at' in descending order
@@ -103,14 +149,26 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 class PasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = 'registration/password_reset_complete.html'
 
-
-# using the built in django detail view to show the snowboard details
 class SnowboardDetailView(DetailView):
     model = Snowboard
 
-# using the built in django update view to update the snowboard details
-# Define a ListView for the Snowboard model
 class SnowboardListView(ListView):
+    """
+    A ListView for displaying a list of Snowboards.
+
+    This view displays a list of Snowboards, optionally filtered by shape, terrain, season, and brand. It also supports pagination of the Snowboard list.
+
+    Attributes:
+    model (Model): The model to use, in this case, Snowboard.
+    template_name (str): The name of the template to use for the view.
+    paginate_by (int): The number of items to display per page.
+
+    Methods:
+    get_queryset: Customize the queryset by filtering based on the GET request parameters.
+    get_paginate_by: Customize the number of items per page based on the 'items_per_page' GET request parameter.
+    get_context_data: Add additional context variables, including the current user, a list of all possible snowboard shapes, a list of all brands, a list of all unique terrains, the selected terrains, season, and brands from the GET request, and the current user's Profile object (if the user is authenticated).
+    """
+
     model = Snowboard  # Specify the model to use
     template_name = 'snowReview/snowboard_list.html'  # Specify the template to use
     paginate_by = 12  # Specify the number of items to display per page
@@ -202,13 +260,31 @@ class SnowboardListView(ListView):
         # Return the context
         return context
 
-# using the built in django form view to filter the snowboards
 class GuideView(FormView):
+    """
+    The template_name variable specifies the HTML template that will be used to render the view.
+    The form_class variable specifies the form class that will be used to handle form submissions in the view.
+
+    Variables:
+    template_name (str): The name of the template to use for the view.
+    form_class (Form): The form class to use for handling form submissions in the view.
+    """
     template_name = 'snowReview/Guide.html'
     form_class = GuideForm
 
-# filtered snowboard view
 def snowboard_view(request):
+    """
+    Display a list of snowboards, optionally filtered by rider, terrain, and shape.
+
+    This view handles both the GET and POST methods. On GET, it displays a list of snowboards, optionally filtered based on the request parameters.
+    It also handles pagination of the snowboard list.
+
+    Parameters:
+    request (HttpRequest): The request object.
+
+    Returns:
+    HttpResponse: The response object. A render of the snowboard list page, including the filter form and paginated snowboard list.
+    """
     # Create an instance of the GuideForm using the GET request data
     form = GuideForm(request.GET)
     
@@ -248,8 +324,21 @@ def snowboard_view(request):
 
     return render(request, 'snowReview/snowboard.html', {'form': form, 'snowboards': page_obj, 'total_items': snowboards.count()})
 
-# Define a view function for creating a new Snowboard
+@reviewer_required
 def createSnowboard(request):
+    """
+    Create a new snowboard.
+
+    This view handles both the GET and POST methods. On GET, it displays an empty snowboard form.
+    On POST, it validates the form, and if valid, saves the new snowboard and redirects to the snowboard list page.
+
+    Parameters:
+    request (HttpRequest): The request object.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the snowboard list page. On GET, it's a render of the snowboard form.
+    """
+
     # If the request method is POST
     if request.method == 'POST':
         # Create an instance of SnowboardForm with the POST data and files
@@ -272,8 +361,22 @@ def createSnowboard(request):
     # Render the 'addBoard_form.html' template with the context
     return render(request, 'snowReview/addBoard_form.html', context)
 
-# Define a view function for deleting a Snowboard
+@staff_required
 def delete_snowboard(request, snowboard_id):
+    """
+    Delete a snowboard.
+
+    This view allows a staff member to delete a snowboard. If the user is authorized, it deletes the snowboard and redirects to the snowboard list page with a success message.
+    If the user is not authorized, it redirects to the home page with an error message.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    snowboard_id (int): The ID of the snowboard to delete.
+
+    Returns:
+    HttpResponseRedirect: A redirect to the snowboard list page or home page.
+    """
+        
     # If the user is authenticated and is a staff member
     if request.user.is_authenticated and request.user.is_staff:
         # Get the Snowboard with the given ID, or raise a 404 error if it doesn't exist
@@ -284,9 +387,26 @@ def delete_snowboard(request, snowboard_id):
         messages.success(request, f'{snowboard} successfully deleted.')
         # Redirect to the snowboard list view
         return redirect('snowboard-list')
+    else:
+        # Show an error message
+        messages.error(request, 'You do not have the necessary permissions to perform this action.')
+        # Redirect to the home view
+        return redirect('home_view')
 
-# for creating a user account
 def register(request):
+    """
+    Handle user registration.
+
+    This view handles both the GET and POST methods. On GET, it displays an empty registration form.
+    On POST, it validates the form, and if valid, saves the new user and redirects to the login page.
+
+    Parameters:
+    request (HttpRequest): The request object.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the login page. On GET, it's a render of the registration form.
+    """
+
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -297,10 +417,22 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
-# For adding comments
-# The login_required decorator ensures that only logged-in users can access this view
 @login_required(login_url='login')
 def add_comment(request, snowboard_id):
+    """
+    Add a comment to a snowboard.
+
+    This view handles both the GET and POST methods. On GET, it displays an empty comment form.
+    On POST, it validates the form, and if valid, saves the comment and redirects to the snowboard detail page.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    snowboard_id (int): The ID of the snowboard to comment on.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the snowboard detail page. On GET, it's a render of the comment form.
+    """
+
     # Get the Snowboard with the given ID, or raise a 404 error if it doesn't exist
     snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
     if request.method == "POST":
@@ -329,6 +461,19 @@ def add_comment(request, snowboard_id):
 
 @login_required(login_url='login')
 def edit_comment(request, comment_id):
+    """
+    Edit a comment.
+
+    This view allows a user to edit a comment if they are a staff member or the author of the comment.
+    If the user is authorized, it displays a form pre-filled with the current comment details for GET requests, and updates the comment for POST requests.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    comment_id (int): The ID of the comment to edit.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the snowboard detail page. On GET, it's a render of the comment form.
+    """
     # Get the comment or 404 if not found
     comment = get_object_or_404(Comment, id=comment_id)
 
@@ -353,23 +498,52 @@ def edit_comment(request, comment_id):
         messages.error(request, 'You do not have permission to edit this comment.')
         return redirect('snowboard-detail', pk=comment.snowboard.id)
     
-# Delete Comment
-def delete_comment(request, comment_id): 
+@login_required(login_url='login')
+def delete_comment(request, comment_id):
+    """
+    Delete a comment.
+
+    This view allows a user to delete a comment if they are a staff member or the author of the comment.
+    If the user is authorized, it deletes the comment and redirects to the snowboard detail page with a success message.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    comment_id (int): The ID of the comment to delete.
+
+    Returns:
+    HttpResponseRedirect: A redirect to the snowboard detail page.
+    """
+    
     comment = get_object_or_404(Comment, id=comment_id) 
     if request.user.is_staff or request.user == comment.user:
         comment.delete()
         messages.success(request, 'Comment Deleted')
     return redirect('snowboard-detail', comment.snowboard.id)
 
-
-# no path traversal allowed :)
-@login_required(login_url='login')
+@reviewer_required
 def add_review(request, snowboard_id):
+
+
+    """
+    Add a review for a specific snowboard.
+
+    This view handles both the GET and POST methods. On GET, it displays an empty review form.
+    On POST, it validates the form, checks the review limit for the snowboard, and if valid and under limit, saves the review.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    snowboard_id (int): The ID of the snowboard to review.
+
+    Returns:
+    HttpResponse: The response object. On POST, this is a redirect to the snowboard detail page. On GET, it's a render of the review form.
+    """
+
     # init review_posted
     review_posted = False
 
     # to get the current snowboard to display it during the form
     snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
+
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -397,18 +571,49 @@ def add_review(request, snowboard_id):
     print(review_posted)
     return render(request, 'snowReview/add_review.html', {'form': form, 'review_posted': review_posted, 'snowboard': snowboard})
 
+
+
     #Delete Review
-@login_required
+@reviewer_required
 def delete_review(request, review_id):
+    """
+    Delete a review.
+
+    This view allows a user to delete a review if they are a staff member or the author of the review.
+    If the user is authorized, it deletes the review and redirects to the snowboard detail page with a success message.
+    If the user is not authorized, it simply redirects to the snowboard detail page.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    review_id (int): The ID of the review to delete.
+
+    Returns:
+    HttpResponseRedirect: A redirect to the snowboard detail page. 
+    """
+    
     review = get_object_or_404(Review, id=review_id)
     if request.user.is_staff or request.user == review.reviewer.user:
         review.delete()
         messages.success(request, 'Review Deleted')
     return redirect('snowboard-detail', review.snowboard.id)
 
-
-@login_required
+@reviewer_required
 def edit_review(request, review_id):
+    """
+    Edit a review.
+
+    This view allows a user to edit a review if they are a staff member or the author of the review.
+    If the request method is POST, it validates the submitted form and updates the review.
+    If the request method is not POST, it displays a form pre-filled with the current review details.
+    If the user is not authorized to edit the review, they are redirected to the snowboard detail page with an error message.
+
+    Parameters:
+    request (HttpRequest): The request object.
+    review_id (int): The ID of the review to edit.
+
+    Returns:
+    HttpResponse: The response object. If the form is valid and the request method is POST, this is a redirect to the snowboard detail page. Otherwise, it's a render of the review form.
+    """
     # get review object
     review = get_object_or_404(Review, id=review_id)
     # if user is admin or post author
@@ -425,3 +630,4 @@ def edit_review(request, review_id):
     else:
         messages.error(request, 'You are not authorized to edit this review')
         return redirect('snowboard-detail', review.snowboard.id)
+

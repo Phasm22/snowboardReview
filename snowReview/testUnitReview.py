@@ -10,6 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 
+START_INDEX = 259
+
+''' Pass in the driver, the username, and the password to log in to the application.'''
 def login(driver, username, password):
     # navigate to the application home page
     driver.get("http://172.16.0.106:8000/login/")
@@ -34,13 +37,14 @@ def login(driver, username, password):
     # click on the submit button
     submit_button.click()
 
-
+''' Pass in the driver, the number of reviews to make, and whether or not to make a bad review.'''
 def makeReview(driver, reviews, bad_review=False):
     # navigate to snowboards page
     driver.get("http://172.16.0.106:8000/snowboard-list/")
+    end = reviews + START_INDEX
 
     # iterate over the first 'reviews' number of snowboards
-    for i in range(255, reviews + 1):
+    for i in range(START_INDEX, end):
         print(f"i is now: {i}")
         try:
             # Navigate to review page
@@ -154,25 +158,30 @@ def makeReview(driver, reviews, bad_review=False):
 
 
         except NoSuchElementException:
-            # the user is not authorized to review, break the loop
-            break
+            print(f"No review page found for index {i}")
+            result = False
+
+
 
             # navigate back to the snowboards page
         driver.get("http://172.16.0.106:8000/snowboard-list/")  
+    
         return result
     
+''' Pass in the driver, the snowboard_id, and whether or not to make a bad comment.'''
 def makeComment(driver, snowboard_id, bad_comment=False):
     # navigate to snowboards page
-    # url http://172.16.0.106:8000/snowboard/251/add_comment/#accordionComments
-    # replace 251 with snowboard_id
     driver.get(f"http://172.16.0.106:8000/snowboard/{snowboard_id}/add_comment/")
 
-    # User input to click on the comment button
-    input("Click on the comment button and press enter to continue.")
+
+    # wait for the add comment button to be clickable
+    add_comment_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'add-comment-button')))
+
+    # use JavaScript to click the button
+    driver.execute_script("arguments[0].click();", add_comment_button)
 
     # find the comment form
-    comment = driver.find_element(By.ID, 'comment-text')
-
+    comment = driver.find_element(By.ID, 'comment_text')
 
     # Add a comment to a snowboard review
     if bad_comment:
@@ -183,9 +192,11 @@ def makeComment(driver, snowboard_id, bad_comment=False):
     comment.send_keys(comment_text)
 
 
-    # submit the comment
+    # find the submit button
     submit_button = driver.find_element(By.XPATH, '//button[@type="submit"]')
-    submit_button.click()
+
+    # use JavaScript to click the submit button
+    driver.execute_script("arguments[0].click();", submit_button)
 
     # Check if the error message is present
     error_message = driver.find_elements(By.XPATH, '//div[@class="alert alert-danger"]')
@@ -226,59 +237,108 @@ options.add_argument("--headless")
 
 
 class TestSnowReview(unittest.TestCase):
+    # Users
+    users = [
+        {"username": "kathy_lopez", "password": "TestPassword123"}, # REVIEWER
+        {"username": "michelle_dixon", "password": "TestPassword123"}, # NORMAL USER
+    ]
+
+    # Test making a review using authorized user, unauthorized user, and no user
     def test_makeReview(self):
-        user = "kathy_lopez"
-        password = "TestPassword123"
+        print("\n\nStarting review tests...\n")
+        # loop through the users
+        for user in self.users:
+            # print the type of test
+            if user["username"] == "kathy_lopez":
+                print("\nTesting reviewer user...")
+                reviewer = True
+            else:
+                print("\nTesting normal user...")
+                reviewer = False
+
+            driver = webdriver.Chrome()
+            # log in the user
+            login(driver, user["username"], user["password"])
+            
+            try:
+                # make a review
+                result = makeReview(driver, 1)
+                expected_result = True if reviewer else False
+                self.assertEqual(result, expected_result)
+                print(f"Normal review passed for user {user['username']}. (1/2)")
+            except AssertionError:
+                print(f"Test failed for user {user['username']}. Normal review did not return {expected_result}. (1/2)")
+
+            try:
+                # make a bad review
+                bad_result = makeReview(driver, 1, True)
+                self.assertEqual(bad_result, False)
+                print(f"Bad review passed for user {user['username']}. (2/2)")
+            except AssertionError:
+                print(f"Test failed for user {user['username']}. Bad review did not return False. (2/2)")
+            finally:
+                # Always quit the driver, even if the test fails
+                driver.quit()
         
-        driver = webdriver.Chrome()
-        login(driver, user, password)
-        
-        try:
-            result = makeReview(driver, 255)
-            bad_result = makeReview(driver, 255, True)
-            self.assertEqual(result, True)
-            print("Normal review passed.")
-            self.assertEqual(bad_result, False)
-            print("Bad review passed.")
             print("All review tests passed!")
-        except AssertionError:
-            print("Test failed. makeReview did not return True.")
-            # Perform any necessary cleanup here
-        finally:
-            # Always quit the driver, even if the test fails
-            driver.quit()
 
+    # Test making a comment using authorized user, unauthorized user, and no user
     def test_makeComment(self):
-        user = "kathy_lopez"
-        password = "TestPassword123"
-        
-        driver = webdriver.Chrome()
-        login(driver, user, password)
-        
-        try:
-            result = makeComment(driver, 255)
-            bad_result = makeComment(driver, 255, True)
-            self.assertEqual(bad_result, False)
-            print("Bad comment passed.")
-            self.assertEqual(result, True)
-            print("Normal comment passed.")
-            print("All comment tests passed!")
-        except AssertionError:
-            print("Test failed. makeComment did not return True.")
-            # Perform any necessary cleanup here
-        finally:
-            # Always quit the driver, even if the test fails
-            driver.quit()
+        print("\n\nStarting comment tests...\n")
+        for user in self.users:
+            driver = webdriver.Chrome()
+            login(driver, user["username"], user["password"])
+            
+            try:
+                # make a comment
+                result = makeComment(driver, START_INDEX)
+                self.assertEqual(result, True)
+                print(f"Normal comment passed for user {user['username']}. (1/2)")
+            except AssertionError:
+                print(f"Test failed for user {user['username']}. Normal comment did not return True. (1/2)")
+    
+            try:
+                # make a bad comment
+                bad_result = makeComment(driver, START_INDEX, True)
+                self.assertEqual(bad_result, False)
+                print(f"Bad comment passed for user {user['username']}. (2/2)")
+            except AssertionError:
+                print(f"Test failed for user {user['username']}. Bad comment did not return False. (2/2)")
+            finally:
+                # Always quit the driver, even if the test fails
+                driver.quit()
+    
+        print("All comment tests passed!")
 
+    # Test user creation and user creation with bad data
     def test_UserCreate(self):
-        result = testUserCreate.test_user_create()
-        bad_result = testUserCreate.test_user_create(True)
-        self.assertEqual(result, True)
-        print("Normal user creation passed.")
-        self.assertEqual(bad_result, False)
-        print("Bad user creation passed.")
+        print("\n\nStarting user creation tests...\n")
+        try:
+            # create a user
+            result = testUserCreate.test_user_create()
+            self.assertEqual(result, True)
+            print("Normal user creation passed. (1/2)")
+        except AssertionError:
+            print("Test failed. Normal user creation did not return True. (1/2)")
+    
+        try:
+            # create a bad user
+            bad_result = testUserCreate.test_user_create(True)
+            self.assertEqual(bad_result, False)
+            print("Bad user creation passed. (2/2)")
+        except AssertionError:
+            print("Test failed. Bad user creation did not return False. (2/2)")
+    
         print("All user creation tests passed!")
 
 
 if __name__ == "__main__":
+    user = "marley"
+    password = "spacexspacex"
+
     unittest.main()
+
+    # options = Options()
+    # options.add_argument("--headless")
+
+    
