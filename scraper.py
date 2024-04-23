@@ -19,6 +19,18 @@ import json
 from faker import Faker
 
 def setup_django_environment(path, settings):
+    """
+    Sets up the Django environment for a script.
+
+    This function adds the given path to the system path, and sets the
+    DJANGO_SETTINGS_MODULE environment variable to the given settings module.
+    It then sets up the Django environment.
+
+    Args:
+        path (str): The path to add to the system path.
+        settings (str): The settings module to use for Django.
+
+    """
     sys.path.insert(0, path)
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
     os.environ['DJANGO_SETTINGS_MODULE'] = settings
@@ -44,7 +56,25 @@ class Scraper:
 
 
 class EvoScraper(Scraper):
+    """
+    A scraper for the Evo website.
+
+    This class inherits from the Scraper base class and implements the scrape_website method
+    specifically for the Evo website.
+
+    """
     def scrape_website(self, website, debug=False):
+        """
+        Scrapes the given website.
+
+        This method overrides the scrape_website method in the Scraper base class. It scrapes the
+        given website and optionally prints debug information.
+
+        Args:
+            website (str): The URL of the website to scrape.
+            debug (bool, optional): Whether to print debug information. Defaults to False.
+
+        """
         # Define a list of two-word brand names
         two_word_brands = ['Never Summer', 'Lib Tech']  # Add more brand names as needed
 
@@ -114,6 +144,9 @@ class EvoScraper(Scraper):
                     size = match.group(1)  # The first group is the part of the string that matches the pattern
                     size, created = Size.objects.get_or_create(size=size)  # Get or create a Size object
                     sizes.append(size)
+        
+        # Sort sizes
+        sizes.sort(key=lambda size: size.size)        
 
         image_element = soup.select_one(self.config['selectors']['image'])
         image_url = image_element['src'] if image_element else None
@@ -225,6 +258,25 @@ class EvoScraper(Scraper):
             print(f"Terrains: {terrains}")
 
     def get_links_from_user(self, num_links, url):
+        """
+        Retrieves a specified number of unique product links from a given URL.
+
+        This method sends a GET request to the provided URL, parses the HTML content, and finds all divs with a 
+        specific class. It then iterates over these divs to extract product IDs and corresponding links. If a 
+        product ID is not already in the set of known IDs, it is added and its link is stored. The process stops 
+        once the desired number of links is reached. The updated set of product IDs is then saved to a JSON file.
+
+        Args:
+            num_links (int): The number of unique product links to retrieve.
+            url (str): The URL from which to retrieve product links.
+
+        Returns:
+            list: A list of unique product links.
+
+        Raises:
+            FileNotFoundError: If the 'product_ids.json' file does not exist, a new set for product_ids is created.
+        """
+
         # Load the product IDs from the file
         try:
             with open('product_ids.json', 'r') as f:
@@ -269,6 +321,23 @@ class EvoScraper(Scraper):
 
 
     def get_website_config(self, url):
+        """
+        Returns the appropriate configuration for scraping a given website.
+
+        This method checks if the given URL contains 'evo.com', and if so, returns a dictionary containing
+        the selectors for various elements on the page, mappings for flex ratings, and identifiers for 
+        bundle, used, and splitboard products. If the URL does not contain 'evo.com', it raises a ValueError.
+
+        Args:
+            url (str): The URL of the website to scrape.
+
+        Returns:
+            dict: A dictionary containing the configuration for scraping the website.
+
+        Raises:
+            ValueError: If the URL does not contain 'evo.com'.
+        """
+        
         # Return the appropriate configuration based on the URL
         if 'evo.com' in url:
             return {
@@ -289,7 +358,7 @@ class EvoScraper(Scraper):
                     'stiff': 8,  # 7-8
                     'very stiff': 10  # 9-10
                 },
-                'bundle_identifier': '+',
+                'bundle_identifier': ' + ',
                 'used_identifier': 'used',
                 'splitboard_identifier' : 'splitboard'
             }
@@ -298,6 +367,20 @@ class EvoScraper(Scraper):
 
 
 def get_user_input(website_urls):
+    """
+    Interacts with the user to get the website they want to scrape and the number of links to scrape.
+
+    This function presents the user with a list of websites and their URLs, and asks the user to choose
+    one. It then asks the user to input the number of links they want to scrape from the chosen site.
+
+    Args:
+        website_urls (dict): A dictionary where the keys are website names and the values are dictionaries
+                             containing details about the websites, including the URL.
+
+    Returns:
+        tuple: A tuple containing the user's chosen site (str) and the number of links they want to scrape (int).
+
+    """
     # Present the options to the user
     for key, value in website_urls.items():
         print(f"{key}: {value['url']}")
@@ -323,6 +406,8 @@ def get_user_input(website_urls):
 
 
 if __name__ == "__main__":
+
+    print("\n\n----------------Active Links-----------------\n\n")
     # Define the website URLs
     website_urls = {
         "1": {"url": "https://www.evo.com/shop/snowboard/snowboards/mens/womens/s_price-asc/rpp_400", "class": EvoScraper},
