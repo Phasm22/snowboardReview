@@ -1,21 +1,24 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.9'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'pip install --upgrade pip'
-                sh 'pip install -r requirements.txt'
+                script {
+                    docker.image('python:3.9').inside {
+                        sh 'pip install --upgrade pip'
+                        sh 'pip install -r requirements.txt'
+                    }
+                }
             }
         }
         stage('Run Tests') {
             steps {
-                sh 'python manage.py test'
+                script {
+                    docker.image('python:3.9').inside {
+                        sh 'python manage.py test'
+                    }
+                }
             }
         }
         stage('Build Docker Image') {
