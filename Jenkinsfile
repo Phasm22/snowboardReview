@@ -7,9 +7,12 @@ pipeline {
                 script {
                     docker.image('python:3.9').inside {
                         sh '''
-                            mkdir -p /tmp/pip-cache
-                            pip install --upgrade pip --cache-dir /tmp/pip-cache --user
-                            pip install -r requirements.txt --cache-dir /tmp/pip-cache --user
+                            python -m venv testenv
+                            sudo chmod -R a+rwx testenv/lib/python3.9/site-packages
+                            sudo chmod -R a+rwx testenv/bin
+                            . testenv/bin/activate
+                            pip install --upgrade pip
+                            pip install -r requirements.txt
                         '''
                     }
                 }
@@ -20,7 +23,7 @@ pipeline {
                 script {
                     docker.image('python:3.9').inside {
                         sh '''
-                            export PATH=$PATH:/root/.local/bin
+                            . testenv/bin/activate
                             python manage.py test
                         '''
                     }
