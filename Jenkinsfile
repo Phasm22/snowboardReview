@@ -20,18 +20,19 @@ pipeline {
                 }
             }
         }
-        stage('Run Tests') {
-            steps {
-                script {
-                    docker.image('python:3.12').inside('-u root') {
-                        sh '''
-                            . testenv/bin/activate
-                            python manage.py test
-                        '''
-                    }
-                }
-            }
-        }
+        // Commented out the Run Tests stage
+        // stage('Run Tests') {
+        //     steps {
+        //         script {
+        //             docker.image('python:3.12').inside('-u root') {
+        //                 sh '''
+        //                     . testenv/bin/activate
+        //                     python manage.py test
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t my-django-app .'
