@@ -7,10 +7,9 @@ pipeline {
                 script {
                     docker.image('python:3.9').inside {
                         sh '''
-                            python -m venv venv
-                            . venv/bin/activate
-                            pip install --upgrade pip
-                            pip install -r requirements.txt
+                            mkdir -p /tmp/pip-cache
+                            pip install --upgrade pip --cache-dir /tmp/pip-cache
+                            pip install -r requirements.txt --cache-dir /tmp/pip-cache
                         '''
                     }
                 }
@@ -20,10 +19,7 @@ pipeline {
             steps {
                 script {
                     docker.image('python:3.9').inside {
-                        sh '''
-                            . venv/bin/activate
-                            python manage.py test
-                        '''
+                        sh 'python manage.py test'
                     }
                 }
             }
