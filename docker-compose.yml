@@ -10,7 +10,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - snow_db
 
   snow_db:
     image: postgres:13
