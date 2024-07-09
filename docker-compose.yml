@@ -1,6 +1,4 @@
-version: '3.8'
-
-services:
+version: '3.333services:
   snow_web:
     build: .
     command: python manage.py runserver 0.0.0.0:8050
