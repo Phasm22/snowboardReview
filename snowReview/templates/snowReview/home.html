@@ -1,0 +1,66 @@
+{% extends "snowReview/base_template.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background: url("{% static 'images/four-snowboarders.jpg' %}") no-repeat center center fixed; 
+        background-position: center 45%; /* Adjust this value to shift the image up or down */
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+    .center-text {
+        text-align: center;
+        padding: 100px;
+    }
+    .btn-choice {
+        font-size: 20px;
+        padding: 20px 40px;
+        color: white;
+    }
+
+    .base-button {
+        background-color: black;
+        border-color: black;
+        outline: none;
+        }
+    .base-button:hover, .base-button:focus, .base-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none;
+    }
+    .title {
+        margin-bottom: -2.2rem;
+    }
+
+    .subtitle {
+        margin-top: 0.2em; 
+        font-size: 1.2em; 
+        color: #666; 
+    }
+    .custom-card {
+        max-width: 800px;  
+        margin: auto;
+        background-color: rgba(255, 255, 255, 0.93) !important; /* Set the background color to white with 80% opacity */
+    }
+</style>
+
+<div class="card mb-4 bg-light custom-card ">
+    <!-- Increase the font size of the guidance text -->
+    <h1 class="container text-center title">
+        The RealPowGuide
+    </h1>
+    <p class="container text-center subtitle">
+        For Enthusiasts by Enthusiasts
+    </p>
+    <p class="container text-center" style="font-size: 1.5em;">
+        Looking for some guidance? Our Snowboard Guide is here to help you out!
+    </p>
+    <div class="center-text">
+        <a class="btn btn-primary mt-3 text-left base-button btn-choice" href="{% url 'guide' %}">Snowboard Guide</a>
+        <a class="btn btn-primary mt-3 text-left base-button btn-choice" href="{% url 'snowboard-list' %}">Search</a>
+    </div>
+</div>
+{% endblock %}

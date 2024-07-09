@@ -1,0 +1,47 @@
+{% extends 'snowReview/base_template.html' %}
+
+{% block content %}
+    <h1>Add a Review</h1>
+    <h5>{{ snowboard.name }}</h5>
+    <div class:"form-container">
+        <form method="post" class="form-group">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Please correct the errors below:</strong>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_boardSize">Board Size (cm)</label>
+                <input type="number" class="form-control" id="id_boardSize" name="boardSize" placeholder="Enter board size" style="width: 40%;" value="{{ form.boardSize.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_date">Date</label>
+                <input type="date" class="form-control" id="id_date" name="date" style="width: 40%;"style="width: 40%;" value="{{ form.date.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_conditions">Conditions</label>
+                <input type="text" class="form-control" id="id_conditions" name="conditions" placeholder="Enter conditions" style="width: 40%;"style="width: 40%;" value="{{ form.conditions.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_snow24">Snowfall in the last 24 hours (inches)</label>
+                <input type="text" class="form-control" id="id_snow24" name="snow24" placeholder="Enter snowfall in the last 24 hours" style="width: 40%;" value="{{ form.snow24.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_snow7">Snowfall in the last 7 days (inches)</label>
+                <input type="text" class="form-control" id="id_snow7" name="snow7" placeholder="Enter snowfall in the last 7 days" style="width: 40%;" value="{{ form.snow7.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_riderHeight">Rider Height (Inches)</label>
+                <input type="text" class="form-control" id="id_riderHeight" name="riderHeight" placeholder="Enter rider height" style="width: 40%;"style="width: 40%;" value="{{ form.riderHeight.value|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_riderWeight">Rider Weight (lbs)</label>
+                <input type="number" class="form-control" id="id_riderWeight" name="riderWeight" placeholder="Enter rider weight" style="width: 40%;"style="width: 40%;" value="{{ form.riderWeight.value|default_if_none:'' }}">
+            </div>
+
+            <button type="submit" id="submit-button" class="btn btn-primary" style="margin-top: 20px;">Submit</button>        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'snowReview/base_template.html' %}
+
+{% block content %}
+<style>
+    .board-title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 2.5em;
+        }
+        .form-group {
+            padding: 10px;  /* Adjust as needed */
+        }
+
+        .back-button {
+            background-color: black;
+            border-color: black;
+            outline: none !important;
+        }
+        .back-button:hover, .back-button:focus, .back-button:active {
+            background-color: #d67609;
+            border-color: #d67609;
+            outline: none !important;
+        }
+        .btn-choice {
+            font-size: 12x;
+            padding: 15px 15px;
+            color: white;
+        }
+      
+        .base-button {
+            background-color: black;
+            border-color: black;
+            outline: none;
+          }
+        .base-button:hover, .base-button:focus, .base-button:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none;
+        }
+    </style>
+<h1 class="board-title text-left mt-3">Add a Snowboard</h1>
+<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button">View all Snowboards</a>
+<div class:"form-container">
+
+    <form method="post" class="form-group" enctype="multipart/form-data">  <!-- Add enctype attribute here -->
+        <div class="card mt-4">
+            <div style="max-width: 500px; margin: auto;">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+                        {% if field.name == "sizes" %}
+                            <div style="display: flex; flex-wrap: wrap;">
+                                {% for choice in field.field.choices %}
+                                    <div style="flex: 1 0 20%;">
+                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice.0 }}" id="{{ field.auto_id }}_{{ forloop.counter }}" {% if choice.0 in field.value %}checked{% endif %}>
+                                        <label for="{{ field.auto_id }}_{{ forloop.counter }}">{{ choice.1 }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == "image" %}
+                            <div class="mb-3">
+                                <input class="form-control" type="file" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="text-center">
+                    <input type="submit" class="btn btn-primary mt-3 base-button btn-choice" value="Submit">
+                </div>      
+            </div>
+        </div>
+    </form>
+    </div>
+    {% endblock content %}

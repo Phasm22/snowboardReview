@@ -1,0 +1,139 @@
+{% extends 'snowReview/base_template.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .snowboard-image {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+    }
+    .title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 3rem;
+        padding: 10px;
+        }
+
+    .card {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 20px;
+    }
+    .center-text {
+        text-align: center;
+        }
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip-text {
+        width: 200px;
+    }
+    .item-container {
+        width: 15%;
+    }
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+    </style>
+
+    <h1 class="title">
+        Snowboards
+    </h1>
+    <div class="card mb-4 bg-light d-flex align-items-center mb-3 justify-content-start">
+        <div class="row">
+            <div class="col-12">
+                <p>Total Results: {{ snowboards.paginator.count }}</p>
+            </div>
+            <!-- form for paginator drop down-->
+            <form method="get" style="padding-bottom: 20px;"> 
+                {% csrf_token %} 
+                <!-- Include the current filters as hidden fields -->
+                {% for key, values in request.GET.lists %}
+                    {% if key != 'items_per_page' %}
+                        {% for value in values %} 
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <div class="item-container">
+                    <label for="items_per_page">Items per page:</label>
+                    <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">
+                        <option value="12" {% if request.GET.items_per_page == "12" %}selected{% endif %}>12</option>
+                        <option value="24" {% if request.GET.items_per_page == "24" %}selected{% endif %}>24</option>
+                        <option value="90" {% if request.GET.items_per_page == "90" %}selected{% endif %}>90</option>
+                    </select>
+                </div>
+            </form>
+        {% if snowboards %}
+            <div class="row row-cols-1 row-cols-md-3 g-4">  <!-- Start of row div -->
+                {% for snowboard in snowboards %}
+                    <div class="col">
+                        <div class="card mb-4 bg-white" style="width: 18rem;">
+                            <div class="tooltip-container">
+                                <a href="{{ snowboard.get_absolute_url }}">
+                                    <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">
+                                </a>
+                                <div class="tooltip-text">
+                                    Shape: {{ snowboard.shape }}<br>
+                                    Profile: {{ snowboard.profile }}<br>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title center-text custom-font">
+                                    <a href="{{ snowboard.get_absolute_url }}">
+                                        {{ snowboard.name }}
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>  <!-- End of row div -->
+        {% else %}
+        <div class="text-center flex-grow-1 d-flex align-items-center justify-content-center">
+            <p>No snowboards found.</p>
+        </div>
+        {% endif %}
+        <div class="container" style="text-align: left;">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    {% if snowboards.has_previous %}  <!-- If there are previous pages -->
+                        <!-- Link to the first page. The items_per_page parameter is preserved. -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1&items_per_page={{ request.GET.items_per_page }}">&laquo; first</a>
+                        </li>
+                        <!-- Link to the previous page -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ snowboards.previous_page_number }}&items_per_page={{ request.GET.items_per_page }}">previous</a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Display the current page number and the total number of pages -->
+                    <li class="page-item disabled">
+                        <a class="page-link">
+                            Page {{ snowboards.number }} of {{ snowboards.paginator.num_pages }}
+                        </a>
+                    </li>
+
+                    {% if snowboards.has_next %}  <!-- If there are next pages -->
+                        <!-- Link to the next page -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ snowboards.next_page_number }}&items_per_page={{ request.GET.items_per_page }}">next</a>
+                        </li>
+                        <!-- Link to the last page -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ snowboards.paginator.num_pages }}&items_per_page={{ request.GET.items_per_page }}">last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        </div>
+    </div>
+{% endblock %}

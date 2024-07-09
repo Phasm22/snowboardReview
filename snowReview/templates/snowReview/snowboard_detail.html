@@ -1,0 +1,585 @@
+{% extends 'snowReview/base_template.html' %}
+{% load static %}
+{% load multiply %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<style>
+    .board-title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 2.5em;
+        }
+    .divider {
+        margin: 0 10px; /* add space on the left and right of the divider */
+    }
+    .vote-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .vote-card {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 150px;
+        height: 50px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .vote.on {
+        margin-left: 10px;
+    }
+
+    .vote {
+        display: flex; /* change this line */
+        flex-direction: row; /* add this line */
+        cursor: pointer;
+        color: #687074;
+        z-index: 1;
+        position: relative;
+    }
+
+    .vote i {
+    }
+
+    .vote-count {
+        margin-left: 10px;
+    }
+
+    .vote.on {
+        color: #f48024 !important;
+    }
+    #comment_text {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+    .comment-card {
+        position: relative;
+    }
+    .review-button-container,
+    .comment-button-container {
+        text-align: right;
+    }
+    .skill-icon {
+        font-size: 2em;
+    }
+    .progress-container {
+        width: 50%;
+        line-height: 50%;
+
+    }
+    .custom-width {
+        width: 50%; /* Change this to the width you want */
+    }
+
+    .progress-label-start {
+        position: relative;
+        left: 0;
+        top: 5px; 
+    }
+
+    .progress-label-end {
+        position: relative;
+        right: 0;
+        top: 5px; 
+        text-align: right;
+    }
+    .progress-bar {
+        background-color: #d67609;
+    }
+
+    .progress-label-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ffffff;
+        opacity: 0.7;
+    }
+    .flex-container {
+        display: flex;
+        align-items: center;
+    }
+    
+    .flex-label {
+        margin-right: 10px; 
+    }
+    .back-button {
+        background-color: black;
+        border-color: black;
+        outline: none !important;
+        }
+    .back-button:hover, .back-button:focus, .back-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none !important;
+    }
+    
+
+</style>
+{% if form.errors %}
+    <div id="error-alert" class="alert alert-danger" role="alert">
+        {{ form.non_field_errors }}
+        {{ form.comment_text.errors }}
+    </div>
+{% endif %}
+
+<script>
+window.onload = function() {
+    if (!document.getElementById('error-alert')) {
+        // Replace 'myAccordion' with the ID of your accordion
+        var accordion = document.getElementById('myAccordion');
+        var event = new Event('click');
+        accordion.dispatchEvent(event);
+    }
+};
+</script>
+<a href="{% url 'snowboard-list' %}" class="btn btn-primary mt-3 text-left back-button"><i class="fas fa-long-arrow-alt-left"></i> View all Snowboards</a>
+{% if user.is_authenticated and user.is_staff %}
+    <button type="button" class="btn btn-danger mt-3 text-left delete-button" data-toggle="modal" data-target="#deleteModal"><i class="fas fa-trash-alt"></i> Delete Snowboard</button>
+{% endif %}
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this snowboard?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a href="{% url 'delete-snowboard' snowboard.id %}" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title board-title">{{ snowboard.name }}</h5>
+        <div class="row">
+            <div class="col-md-6 pt-5 custom-font" >
+                <p><strong>Season:</strong> {{ snowboard.season }}</p>
+                <p><strong>Shape:</strong>
+                    {{ snowboard.shape }}
+                    {% if snowboard.shape == "Directional" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="The nose is wider than the tail, giving you plenty of float in powder and stability at high speeds.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "Twin" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="The nose and tail are identical in shape and flex, which makes it easy to ride switch.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "Directional Twin" %}
+                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="The nose is slightly longer than the tail, giving you plenty of float in powder and stability at high speeds.">
+                            <i class="bi bi-question-circle"></i>
+                        </span>
+                    {% elif snowboard.shape == "True Twin" %}
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="These boards are meant to feel the same when you ride switch or regular. They are great for park riding and street shredding.">
+                        <i class="bi bi-question-circle"></i>
+                    </span>
+                    {% endif %}
+                </p>
+                <p><strong>Terrain:</strong> 
+                    {% for terrain in snowboard.terrain.all %}
+                        {{ terrain.name }}
+                        {% if terrain.name == "Freestyle" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Light, short and flexible. Limited edge grip and are not stable enough for carving turns and travelling fast.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "All-Mountain" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Designed to perform well anywhere on the mountain. Floats well on powder surfaces, carves on the pistes and handle lumps and bumps.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "Freeride" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Focuses on riding natural or ungroomed terrain outside of resort boundaries in either the side country or backcountry areas.<br><br>Usually stiffer and longer than freestyle. The stiffness gives them quicker response times edge to edge.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% elif terrain.name == "Powder" %}
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Soft to medium flex, allowing you to make precise, technical turns at lower speeds while still being able to deliver a solid, responsive ride when you open up the throttle.">
+                                <i class="bi bi-question-circle"></i>
+                            </span>
+                        {% endif %}
+                        {% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No terrain specified
+                    {% endfor %}
+                </p>            
+                <p><strong>Profile:</strong> {{ snowboard.profile }}</p>
+                <p><strong>Rider:</strong> 
+                {% if snowboard.rider == "Expert" %}
+                <span class="d-inline-block border rounded py-2 px-3 text-center">
+                    <i class="bi bi-suit-diamond-fill text-dark skill-icon"></i><br>
+                    {{ snowboard.rider }}
+                </span>
+                {% elif snowboard.rider == "Intermediate" %}
+                    <span class="d-inline-block border rounded py-2 px-3 text-center">
+                        <i class="bi bi-square-fill text-primary skill-icon"></i><br>
+                        {{ snowboard.rider }}
+                    </span>
+                {% elif snowboard.rider == "Beginner" %}
+                    <span class="d-inline-block border rounded py-2 px-3 text-center">
+                        <i class="bi bi-circle-fill text-success skill-icon"></i><br>
+                        {{ snowboard.rider }}
+                    </span>
+                {% else %}
+                    <span>{{ snowboard.rider }}</span>
+                {% endif %}
+
+            <!-- Rider tooltip-->
+                {% if snowboard.rider == "Expert" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Expert: You are comfortable riding at speed. You have mastered multiple turn types. Riding switch has become second nature too.">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% elif snowboard.rider == "Intermediate" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Intermediate: You can attempt black runs - but it's not always pretty! You are getting better at navigating more uneven terrain.">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% elif snowboard.rider == "Beginner" %}
+                <span data-bs-toggle="tooltip" data-bs-placement="top" title="Beginner: You are brand new. You start out learning how to control your speed and get some distance down a slope without bailing!">
+                    <i class="bi bi-question-circle"></i>
+                </span>
+                {% else %}
+                    <span>{{ snowboard.rider }}</span>
+                {% endif %}
+                </p >
+                <div class="flex-container">
+                    <div class="flex-label"><strong>Flex:</strong></div>
+                    <div class="progress-container">
+                        <div class="progress position-relative">
+                            <div class="progress-bar" role="progressbar" style="width: {{ snowboard.flex|multiply:"10" }}%;" aria-valuenow="{{ snowboard.flex }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            <div class="progress-label-center" style="padding-top: 4px;"><strong>{{ snowboard.flex }}/10</strong></div>
+                        </div>
+                        <div class="progress-label-start">Soft</div>
+                        <div class="progress-label-end">Firm</div>
+                    </div>
+                    <span data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top" title="Softer: Much more sensitive to user input, so they work well for softer or bumpier snow surfaces.<br><br>Stiffer: Increased edge grip and faster response at high speeds.">
+                        <i class="bi bi-question-circle"></i>
+                    </span>
+                    <script>
+                    $(function () {
+                        $('[data-bs-toggle="tooltip"]').tooltip()
+                    })
+                    </script>
+                </div>
+                <!-- size -->
+                <p style="padding-top: 14px;"><strong>Sizes:</strong> 
+                {% for size in snowboard.sizes.all %}
+                    {{ size.size }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                </p>
+                
+                {% if snowboard.brand_image %}
+                    <div>
+                        <strong>Brand:</strong> <img src="{{ snowboard.brand_image.url }}" class="img-fluid" alt="{{ snowboard.brand }}">
+                    </div>
+                {% else %}
+                {% endif %}
+                <p><strong>Description:</strong> {{ snowboard.desc }}</p>
+            </div>
+            <div class="col-md-6">
+                {% if snowboard.image %}
+                    <img src="{{ snowboard.image.url }}" class="img-fluid" alt="{{ snowboard.name }}">
+                {% else %}
+                    <p>No image available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Reviews-->
+<div class="accordion" id="accordionReviews">
+    <div class="card mt-4">
+        <div class="card-header" id="headingReviews">
+            <h5 class="mb-0 board-title card-title">
+                <button type="button" data-toggle="collapse" data-target="#collapseReviews" aria-expanded="true" aria-controls="collapseReviews" style=" background: none; border: none; padding: 0; font-weight: 600; color: inherit; text-align: inherit; text-decoration: underline;">
+                    (Reviews)
+                </button>
+            </h5>
+        </div>
+        <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionReviews">
+            <div class="card-body custom-font" id="reviews">
+                {% for review in snowboard.review_set.all %}
+                    <div class="card bg-light mt-4">
+                        <p><strong>Board Size:</strong> {{ review.boardSize }}</p>
+                        <p><strong>Date:</strong> {{ review.date }}</p>
+                        <p><strong>Conditions:</strong> {{ review.conditions }}</p>
+                        <p><strong>Snow in the last 24 hours:</strong> {{ review.snow24 }} Inch (in)</p>
+                        <p><strong>Snow in the last 7 days:</strong> {{ review.snow7 }} Inch (in)</p>
+                        <p><strong>Rider Height:</strong> {{ review.riderHeight }} Inch (in)</p>
+                        <p><strong>Rider Weight:</strong> {{ review.riderWeight }} lb</p>
+                        <small><i class="fas fa-user"></i> {{ review.reviewer.user.username }}</small>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ review.updated_at }}</p>
+                            {% if user == review.reviewer.user or user.is_staff %}
+                            <div class="review-button-container">
+                                <a href="{% url 'edit-review' review.id %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteReviewModal"><i class="fas fa-trash-alt"></i> Delete</button>
+                            </div>
+                        {% endif %}
+                        <div class="modal fade" id="deleteReviewModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalReviewLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalReviewLabel">Confirm Delete</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this review?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <a href="{% url 'delete-review' review.id %}" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="custom-font">
+                        No reviews yet.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Review Form for authenticated users -->
+{% if user.is_authenticated and user.profile.is_reviewer %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title board-title">Add a Review</h5>
+            <a href="{% url 'add-review' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button"><i class="fas fa-plus"></i> Add Review</a>
+        </div>
+    </div>
+{% endif %}
+<!-- Comments -->
+<div class="accordion" id="accordionComments">
+    <div class="card mt-4">
+        <div class="card-header" id="headingComments">
+            <h5 class="mb-0 board-title card-title">
+                <button type="button" data-toggle="collapse" data-target="#collapseComments" aria-expanded="true" aria-controls="collapseComments" style=" background: none; border: none; padding: 0; font-weight: 600; color: inherit; text-align: inherit; text-decoration: underline;">
+                    (Comments)
+                </button>
+            </h5>
+        </div>
+        <div id="collapseComments" class="collapse" aria-labelledby="headingComments" data-parent="#accordionComments">
+            <div class="card-body custom-font">
+                {% for comment in comments %}
+                    <div class="card comment-card mt-4 bg-light">
+                        <p style="padding-left: 10px">{{ comment.comment_text }}</p>
+                        <small><i class="fas fa-user"></i> {{ comment.user.username }}</small>
+                        <p style="font-size: 0.8em;"><strong>Updated:</strong> {{ comment.updated_at }}</p>
+                        {% if user == comment.user or user.is_staff %}
+                            <div class="comment-button-container">
+                                <a href="{% url 'edit-comment' comment.id %}#accordionComments" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteCommentModal"><i class="fas fa-trash-alt"></i> Delete</button>
+                            </div>
+                        {% endif %}
+                        <div class="modal fade mt-4" id="deleteCommentModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalCommentLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalCommentLabel">Confirm Delete</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this comment?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <a href="{% url 'delete-comment' comment.id %}" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card vote-card">
+                            <div class="card-body">
+                                <div class="vote-container"> <!-- Add this div -->
+                                    <a href="#" class="{% if comment.has_upvoted %}vote on{% else %}vote off{% endif %}" data-id="{{ comment.id }}">
+                                        <i class="far fa-thumbs-up"></i> <!-- Thumbs up icon -->
+                                        <span class="vote-count">{{ comment.upvotes }}</span>
+                                    </a>
+                                    <span class="divider">|</span> <!-- Vertical divider -->
+                                    <a href="#" class="{% if comment.has_downvoted %}vote on{% else %}vote off{% endif %}" data-id="{{ comment.id }}">
+                                        <i class="far fa-thumbs-down"></i> <!-- Thumbs down icon -->
+                                        <span class="vote-count">{{ comment.downvotes }}</span>
+                                    </a>
+                                </div> <!-- Close the div -->
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No comments yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Form for authenticated users -->
+{% if user.is_authenticated %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title board-title">Add a Comment</h5>
+            <form id="comment-form" method="post" style="display: none;">
+                {% csrf_token %}
+                <textarea name="comment_text" id="comment_text" rows="5" required class="form-control">{{ form.comment_text.value }}</textarea>                
+                <button type="submit" formaction="{% url 'add-comment' snowboard.id %}" class="btn btn-primary mt-3 text-left back-button">Post</button>
+            </form>
+            <button id="add-comment-button" class="btn btn-primary mt-3 text-left back-button"><i class="fas fa-plus"></i> Add Comment</button>
+        </div>
+    </div>
+{% endif %}
+
+<!-- for keeping scroll positions after comment submissions-->
+{% if messages %}
+<div id="messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+    <script>
+        window.location.hash = '#accordionComments';
+    </script>
+{% endif %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    // sticky error banner
+    // Make the message sticky
+    $('#messages').css({
+        'position': 'fixed',
+        'top': '0',
+        'left': '5',
+        'right': '0',
+        'width': '100%',
+        'margin': 'auto',
+        'z-index': '9999'
+    });
+
+    // Close the message
+    setTimeout(function() {
+        $('#messages').fadeOut('fast');
+    }, 2000);
+});
+</script>
+<script>
+    var userIsAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
+</script>
+<script>
+window.onload = function() {
+    // Check if the user is on the edit comment page
+    var isEditCommentPage = window.location.href.includes('edit-comment');
+    // Get the add comment button and the comment form
+    var addCommentButton = document.getElementById('add-comment-button');
+    var commentForm = document.getElementById('comment-form');
+
+    var addCommentUrl = '{% url 'add-comment' snowboard.id %}';
+
+    console.log('Add Comment Button:', addCommentButton);
+    console.log('Comment Form:', commentForm);
+
+    // If the user is on the edit comment page, hide the add comment button and show the comment form
+    if (isEditCommentPage) {
+        addCommentButton.style.display = 'none';
+        commentForm.style.display = 'block';
+    } else {
+        if (addCommentButton) {
+            addCommentButton.addEventListener('click', function() {
+                console.log('Add Comment Button Clicked');
+                this.style.display = 'none';
+                commentForm.style.display = 'block';
+                history.pushState({}, '', addCommentUrl);
+            });
+        }
+    }
+
+    // Code for votes
+    $(document).ready(function() {
+        for (const btn of document.querySelectorAll('.vote')) {
+            btn.addEventListener('click', event => {
+                event.preventDefault();
+        
+                // If the user is not logged in, redirect to the login page
+                if (!userIsAuthenticated) {
+                    window.location.href = '/login/';  // Replace '/login/' with your login page URL
+                    return;
+                }
+                
+                const id = event.currentTarget.dataset.id;
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const currentTarget = event.currentTarget;
+                const originalVoteCount = parseInt(currentTarget.querySelector('.vote-count').textContent, 10);
+                const isUpvoted = btn.classList.contains('on');
+
+                // Make a POST request to the vote URL
+                fetch(`/vote/comment/${id}/${!isUpvoted}/`, {  // Toggle vote
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (currentTarget.classList.contains('on')) {
+                            console.log('Removing "on" class');
+                            currentTarget.classList.remove('on');
+                            currentTarget.classList.add('off');
+                        } else {
+                            console.log('Adding "on" class');
+                            currentTarget.classList.remove('off');
+                            currentTarget.classList.add('on');
+                        }
+                        currentTarget.querySelector('.vote-count').textContent = data.new_vote_count;  // Update vote count
+                    } else {
+                        console.error('Vote failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+                // New code to check initial classes of vote buttons
+        document.querySelectorAll('.vote').forEach(voteButton => {
+            console.log(`Vote button ${voteButton.dataset.id} classes: ${voteButton.className}`);
+        });
+        }
+    });
+}
+</script>
+
+{% if review_posted %}
+    <script>
+        window.location.hash = '#accordionReviews';
+    </script>
+{% endif %}
+{% endblock %}

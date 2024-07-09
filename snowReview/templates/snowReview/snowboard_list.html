@@ -1,0 +1,232 @@
+{% extends "snowReview/base_template.html" %}
+{% load static %}
+
+{% block content %}
+    <style>
+    .card {
+        display: flex;
+        justify-content: center;
+        align-items: left;
+        padding: 20px;
+    }
+    .btn-choice {
+        font-size: 15px;
+        padding: 12px 15px;
+        color: white;
+    }
+
+    .base-button {
+        background-color: black;
+        border-color: black;
+        outline: none;
+        }
+    .base-button:hover, .base-button:focus, .base-button:active {
+    background-color: #d67609;
+    border-color: #d67609;
+    outline: none;
+    }
+    .tooltip-text {
+        width: 200px;
+    }
+    #btn-back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+    }
+
+    #btn-back-to-top:focus, #btn-back-to-top:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none;    
+    }
+    .mb-custom {
+        margin-bottom: 2.3rem !important;
+
+    }
+    .item-container {
+        width: 80%;
+    }
+    .filter-container {
+        width: 160px !important;
+    }
+    .checkbox-menu li label {
+        display: block;
+        padding: 3px 10px;
+        clear: both;
+        font-weight: normal;
+        line-height: 1.42857143;
+        color: #333;
+        white-space: nowrap;
+        margin:0;
+        transition: background-color .4s ease;
+    }
+
+    </style>   
+    
+    <!-- Back to top button -->
+    <button type="button" class="btn btn-primary btn-floating btn-lg base-button" id="btn-back-to-top" style="z-index: 9999;">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+    <h1 class="title">
+        Snowboards
+    </h1>
+    {% if user.is_authenticated and profile.is_reviewer %}
+        <a href="{% url 'snowboard-add' %}" class="btn btn-primary mt-2 mb-3 text-left custom-font base-button btn-choice">
+            <i class="fas fa-plus"></i>
+            Add Snowboard
+        </a>
+    {% endif %}
+
+    <div class="card bg-light">
+        <div class="col-12 custom-font">
+            <p>Total Results: {{ page_obj.paginator.count }}</p>
+        </div>
+        <div class="row">
+            <div class="card bg-white mb-3">
+                <div class="d-flex align-items-center justify-content-start">
+                    <form method="get" class="w-100">
+                        <div class="row">
+                            <!-- Paginator drop down -->
+                            <div class="col-md-2">
+                                <div class="item-container mb-custom custom-font">
+                                    <label for="items_per_page">Items per page:</label>
+                                    <select class="form-select" id="items_per_page" name="items_per_page" aria-label="Items per page" onchange="this.form.submit()">
+                                        <option value="12" {% if request.GET.items_per_page == "12" %}selected{% endif %}>12</option>
+                                        <option value="24" {% if request.GET.items_per_page == "24" %}selected{% endif %}>24</option>
+                                        <option value="90" {% if request.GET.items_per_page == "90" %}selected{% endif %}>90</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Shape filter -->
+                            <div class="col-md-2">
+                                <label for="shapeFilter"><strong>Filter by shape:</strong></label>
+                                <select class="form-select item-container" id="shapeFilter" name="shape">
+                                    <option value="">All</option>
+                                    {% for shape in shapes %}
+                                        <option value="{{ shape }}" {% if request.GET.shape == shape %}selected{% endif %}>{{ shape }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Terrain filter -->
+                            <div class="col-md-2">
+                                <label><strong>Filter by terrain:</strong></label>
+                                <select class="selectpicker filter-container" multiple data-live-search="true" name="terrain">
+                                    {% for terrain in terrains %}
+                                        <option value="{{ terrain }}" {% if terrain in selected_terrains %}selected{% endif %}>{{ terrain }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Season filter -->
+                            <div class="col-md-2">
+                                <label style="padding-left: 25px;"><strong>Filter by Season:</strong></label>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <select class="form-select item-container" id="seasonFilter" name="season">
+                                                <option value="">All</option>
+                                                <option value="2024" {% if request.GET.season == "2024" %}selected{% endif %}>2024</option>
+                                                <option value="2023" {% if request.GET.season == "2023" %}selected{% endif %}>2023</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Brand filter -->
+                            <div class="col-md-2">
+                                <label><strong>Filter by brand:</strong></label>
+                                <select name="brand" id="brands" class="selectpicker filter-container" multiple="multiple" data-live-search="true">
+                                    {% for brand in all_brands %}
+                                        <option value="{{ brand }}"
+                                            {% if brand in selected_brands %}selected{% endif %}>
+                                            {{ brand }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary text-left custom-font base-button btn-choice"><i class="fas fa-filter"></i> Filter</button>
+                                <a href="{% url 'snowboard-list' %}" class="btn btn-primary text-left custom-font base-button btn-choice">Clear</a>
+                            </form>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4 col pl-3">  <!-- Start of row div -->
+                {% for snowboard in page_obj %}<div class="col">
+                        <div class="card mb-4 bg-white" style="width: 18rem;">
+                            <div class="tooltip-container">
+                                <a href="{{ snowboard.get_absolute_url }}">
+                                    <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">
+                                </a>
+                                <div class="tooltip-text">
+                                    Shape: {{ snowboard.shape }}<br>
+                                    Skill: {{ snowboard.rider }}<br>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title center-text custom-font">
+                                    <a href="{{ snowboard.get_absolute_url }}">
+                                        {{ snowboard.name }}
+                                    </a>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-md-12 text-center">
+                        <p>No snowboards available.</p>
+                    </div>
+                {% endfor %}
+            </div>  <!-- End of row div -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}  <!-- If there are previous pages -->
+                        <!-- Link to the first page. The items_per_page parameter is preserved. -->
+                        <li class="page-item custom-font">
+                            <a class="page-link" href="?page=1&items_per_page={{ request.GET.items_per_page }}">&laquo; first</a>
+                        </li>
+                        <!-- Link to the previous page -->
+                        <li class="page-item custom-font">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items_per_page={{ request.GET.items_per_page }}">previous</a>
+                        </li>
+                    {% endif %}
+
+                    <!-- Display the current page number and the total number of pages -->
+                    <li class="page-item disabled">
+                        <a class="page-link">
+                            {% if page_obj.paginator.num_pages == 0 %}
+                                Page 1 of 1
+                            {% else %}
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    {% if page_obj.has_next %}  <!-- If there are next pages -->
+                        <!-- Link to the next page -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&items_per_page={{ request.GET.items_per_page }}">next</a>
+                        </li>
+                        <!-- Link to the last page -->
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&items_per_page={{ request.GET.items_per_page }}">last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker();
+    });
+</script>
+{% endblock %}
