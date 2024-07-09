@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  snow_web:
+  web:
     build: .
     command: python manage.py runserver 0.0.0.0:8050
     volumes:
@@ -10,9 +10,9 @@ services:
     env_file:
       - .env
     depends_on:
-      - snow_db
+      - db
 
-  snow_db:
+  db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
