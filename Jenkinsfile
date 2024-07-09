@@ -40,7 +40,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'docker run -d -p 8050:8050 my-django-app'
+                sh 'docker run -d --name SnowbordReview -p 8050:8050 my-django-app'
             }
         }
     }
