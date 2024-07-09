@@ -65,6 +65,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_project.wsgi.application'
 
+# Load environment variables from .env file
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -72,11 +76,11 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
+        'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+        'USER': os.getenv('DATABASE_USER', 'default_user'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     }
 }
 
