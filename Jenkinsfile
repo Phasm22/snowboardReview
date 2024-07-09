@@ -5,11 +5,11 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    docker.image('python:3.9').inside {
+                    docker.image('python:3.9').inside('-u root') {
                         sh '''
                             python -m venv testenv
-                            sudo chmod -R a+rwx testenv/lib/python3.9/site-packages
-                            sudo chmod -R a+rwx testenv/bin
+                            chmod -R a+rwx testenv/lib/python3.9/site-packages
+                            chmod -R a+rwx testenv/bin
                             . testenv/bin/activate
                             pip install --upgrade pip
                             pip install -r requirements.txt
@@ -21,7 +21,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image('python:3.9').inside {
+                    docker.image('python:3.9').inside('-u root') {
                         sh '''
                             . testenv/bin/activate
                             python manage.py test
