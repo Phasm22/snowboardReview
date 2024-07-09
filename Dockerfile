@@ -19,10 +19,8 @@ COPY . /code/
 # Expose the port the app runs on
 EXPOSE 8050
 
-# Copy the entrypoint script
-COPY entrypoint.sh /code/entrypoint.sh
 
-ENTRYPOINT ["/code/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 # Set the entrypoint
 
 # Run the Django development server
