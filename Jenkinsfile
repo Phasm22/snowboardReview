@@ -8,8 +8,8 @@ pipeline {
                     docker.image('python:3.9').inside {
                         sh '''
                             mkdir -p /tmp/pip-cache
-                            pip install --upgrade pip --cache-dir /tmp/pip-cache
-                            pip install -r requirements.txt --cache-dir /tmp/pip-cache
+                            pip install --upgrade pip --cache-dir /tmp/pip-cache --user
+                            pip install -r requirements.txt --cache-dir /tmp/pip-cache --user
                         '''
                     }
                 }
@@ -19,7 +19,10 @@ pipeline {
             steps {
                 script {
                     docker.image('python:3.9').inside {
-                        sh 'python manage.py test'
+                        sh '''
+                            export PATH=$PATH:/root/.local/bin
+                            python manage.py test
+                        '''
                     }
                 }
             }
