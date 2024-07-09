@@ -1,6 +1,10 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-u root' // Run as root to avoid permission issues
+        }
+    }
     stages {
         stage('Install Python and Pip') {
             steps {
