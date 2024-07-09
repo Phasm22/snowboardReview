@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:
+  snow_web:
     build: .
     command: python manage.py runserver 0.0.0.0:8050
     volumes:
@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
 
-  db:
+  snow_db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data

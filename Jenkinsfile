@@ -35,12 +35,12 @@ pipeline {
         // }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-django-app .'
+                sh 'docker-compose build'
             }
         }
         stage('Deploy') {
             steps {
-                sh 'docker run -d --name SnowbordReview -p 8050:8050 my-django-app'
+                sh 'docker-compose up -d'
             }
         }
     }
