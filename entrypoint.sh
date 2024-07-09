@@ -1,8 +1,10 @@
 #!/bin/sh
+# entrypoint.sh
 
-# Run database migrations
-python manage.py makemigrations
+# Apply database migrations
+echo "Applying database migrations..."
 python manage.py migrate
 
-# Start the Django development server
+# Start the server
+echo "Starting server..."
 exec "$@"

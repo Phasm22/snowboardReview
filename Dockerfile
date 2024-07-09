@@ -22,8 +22,8 @@ EXPOSE 8050
 # Copy the entrypoint script
 COPY entrypoint.sh /code/entrypoint.sh
 
+ENTRYPOINT ["/code/entrypoint.sh"]
 # Set the entrypoint
-ENTRYPOINT ["entrypoint.sh"]
 
 # Run the Django development server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8050"]
