@@ -172,7 +172,7 @@ window.onload = function() {
     <div class="card-body">
         <h5 class="card-title board-title">{{ snowboard.name }}</h5>
         <div class="row">
-            <div class="col-md-6 pt-5 custom-font" >
+            <div class="col-md-6 pt-5 custom-font order-2 order-md-1" >
                 <p><strong>Season:</strong> {{ snowboard.season }}</p>
                 <p><strong>Shape:</strong>
                     {{ snowboard.shape }}
@@ -291,7 +291,7 @@ window.onload = function() {
                 {% endif %}
                 <p><strong>Description:</strong> {{ snowboard.desc }}</p>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 order-1 order-md-2">
                 {% if snowboard.image %}
                     <img src="{{ snowboard.image.url }}" class="img-fluid" alt="{{ snowboard.name }}">
                 {% else %}

@@ -59,7 +59,7 @@ class Terrain(models.Model):
 # Size of snowboards
 class Size(models.Model):
     # 4 for wide snowboard too, ex. 155W or 155MW
-    size = models.CharField(max_length=5, null=True, blank=True)
+    size = models.CharField(max_length=15, null=True, blank=True)
 # Snowboard objects
 class Snowboard(models.Model):
     SKILL = (

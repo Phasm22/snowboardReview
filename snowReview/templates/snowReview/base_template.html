@@ -200,6 +200,37 @@
         width: 100%;
       }
     }
+    @media (max-width: 767px) {
+      .navbar-nav {
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .navbar-nav a {
+        color: #000;  /* Change to a color that contrasts with the background */
+        font-size: 1.2em;  /* Increase the font size */
+      }
+      .custom-font {
+        font-size: 0.8em;
+      }
+      .footer-links {
+        display: flex;
+      }
+      .footer-copy{
+        font-size: 0.5em;
+      }
+      .footer-logo{
+        width: 50px;
+      }
+
+      .footer-links a {
+        margin-bottom: 10px;
+        font-size: 0.7em;
+      }
+      .login-button {
+        margin-top: -80px;
+      }
+    }
   </style>
 
   <a class="title-link" href="{% url 'home_view' %}">
@@ -246,8 +277,8 @@
   <div class="container-fluid no-padding">
     
     <!-- Navbar-->
-    <nav class="navbar-nav navbar-expand-lg bg-body-tertiary" style="background-color: rgba(255, 255, 255, 0.93) !important;">
-        <div class="container-fluid no-padding">
+    <nav class="navbar navbar-expand-md bg-body-tertiary" style="background-color: rgba(255, 255, 255, 0.93) !important;">
+      <div class="container-fluid no-padding">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -256,9 +287,6 @@
             <a class="nav-link title" aria-current="page" href="{% url 'index' %}">Home</a>
             <a class="nav-link" href="{% url 'guide' %}">Guide</a>
             <a class="nav-link" href="{% url 'snowboard-list' %}">Snowboards</a>
-            {% if user.is_authenticated %}
-            {% else %}
-            {% endif %}
           </div>
         </div>
       </div>
@@ -271,7 +299,7 @@
 </div>
   <!--Footer Content Start-->
   <footer class="footer">
-    <div class="text-left custom-font">
+    <div class="text-left custom-font footer-copy">
       <img class="footer-logo" src="{% static 'images/logo.png' %}">
       <i class="far fa-copyright"></i> 2024 All rights reserved
     </div>

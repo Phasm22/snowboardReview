@@ -15,6 +15,7 @@ SECRET_KEY = 'django-insecure-mx2w4g$e99lz8r3&=27v(57rm+1_wf406wftsq_7@*4-k^=hrh
 DEBUG = True
 
 ALLOWED_HOSTS = ['172.16.0.106',
+                 'code-server.prox',
                 'localhost']
 
 
@@ -24,6 +25,7 @@ LOGIN_URL = 'login'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',

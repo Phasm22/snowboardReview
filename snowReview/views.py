@@ -462,8 +462,6 @@ def add_comment(request, snowboard_id):
     # Get the Snowboard with the given ID, or raise a 404 error if it doesn't exist
     snowboard = get_object_or_404(Snowboard, pk=snowboard_id)
     if request.method == "POST":
-        # Print the POST data for debugging purposes
-        print(request.POST)
         # Create an instance of CommentForm with the POST data
         form = CommentForm(request.POST)
         # Validate the form
