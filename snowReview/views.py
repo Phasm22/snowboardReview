@@ -15,6 +15,8 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import GuideForm
+from django.http import JsonResponse
+import subprocess
 from snowReview.forms import SnowboardForm, CommentForm
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, ReviewForm
 from .models import Snowboard, Profile, Review, Comment, Terrain, Vote
@@ -386,6 +388,40 @@ def createSnowboard(request):
     context = {'form': form, 'action': 'Add', 'object_type': 'Snowboard'}
     # Render the 'addBoard_form.html' template with the context
     return render(request, 'snowReview/addBoard_form.html', context)
+
+@reviewer_required
+def snowboard_generate(request):
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        num_snowboards = request.GET.get('num_snowboards', '1')  # Default to 1 if not provided
+        
+        if not num_snowboards.strip():  # Check if the input is empty or contains only whitespace
+            return JsonResponse({'error': 'Enter a valid value'}, status=400)
+
+        try:            
+            num_snowboards = int(num_snowboards)
+            if num_snowboards <= 0 or num_snowboards >= 100:
+                return JsonResponse({'error': 'value must be greater than 0 and less than 100'}, status=400)
+            
+            # Start the process
+            process = subprocess.Popen(
+                ['python', 'scraper.py'],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            
+            # Send input to the process
+            output, error = process.communicate(input=f'{num_snowboards}\n')
+            
+            # Combine stdout and stderr
+            combined_output = output + error
+        except Exception as e:
+            combined_output = str(e)
+        
+        return JsonResponse({'output': combined_output})
+    else:
+        return render(request, 'snowReview/snowboard_generate.html')
 
 @staff_required
 def delete_snowboard(request, snowboard_id):

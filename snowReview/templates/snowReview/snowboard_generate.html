@@ -1,0 +1,85 @@
+{% extends 'snowReview/base_template.html' %}
+
+{% block content %}
+<style>
+    .board-title {
+        font-family: "Shadows Into Light", cursive;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 2.5em;
+    }
+    #terminal-output {
+        white-space: pre-wrap;
+        background-color: black;
+        color: white;
+        padding: 10px;
+        margin-top: 20px;
+        height: 300px;
+        overflow-y: scroll;
+    }
+    .back-button {
+        background-color: black;
+        border-color: black;
+        outline: none !important;
+    }
+    .back-button:hover, .back-button:focus, .back-button:active {
+        background-color: #d67609;
+        border-color: #d67609;
+        outline: none !important;
+    }
+</style>
+
+<h1 class="board-title text-left mt-3">Generate Snowboards</h1>
+
+<div class:"form-container">
+    <label for="num-snowboards">Number of Snowboards to Generate:</label>
+
+    <div style="max-width: 300px; margin: left;">
+        <input type="number" id="num-snowboards" class="form-control" min="1" value="1">
+    </div>
+
+    <button id="run-scraper-btn" class="btn btn-primary mt-3 text-left back-button">Auto-Generate Snowboards</button>
+
+    <div class="card mt-4">
+            <h1 class="board-title text-left mt-1">Output:</h1>
+            <div id="terminal-output"></div>
+    </div>            
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#run-scraper-btn').click(function() {
+            generateSnowboards();
+        });
+
+        function generateSnowboards() {
+            var numSnowboards = $('#num-snowboards').val();
+            // Display the processing message immediately
+            $('#terminal-output').append("Processing Request, Please wait..." + '\n');
+    
+            $.ajax({
+                // URL to send the request to
+                url: '{% url "snowboard-generate" %}',
+                method: 'GET',
+
+                // Custom headers to include in the request
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                
+                // Data to send with the request
+                data: { num_snowboards: numSnowboards },
+                success: function(data) {
+                    $('#terminal-output').append(data.output + '\n');
+                },
+
+                // Function to call if the request fails
+                error: function(xhr, status, error) {
+                    var errorResponse = JSON.parse(xhr.responseText);
+
+                    // Append the error message to the terminal output element
+                    $('#terminal-output').append('An error occurred: ' + errorResponse.error + '\n');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

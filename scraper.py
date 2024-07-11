@@ -9,6 +9,7 @@ import os
 import django
 import aiohttp
 import asyncio
+from asgiref.sync import sync_to_async
 import re
 from bs4 import BeautifulSoup
 import sys
@@ -38,6 +39,23 @@ class Scraper:
         raise NotImplementedError
 
 class EvoScraper(Scraper):
+    
+    
+    
+    async def save_snowboard(snowboard):
+        try:
+            await sync_to_async(snowboard.save)()
+            print("Snowboard Added!")
+        except Exception as e:
+            print(f"Error creating Snowboard: {e}")
+
+    async def save_image_async(image_field, image_name, image_file):
+        await sync_to_async(image_field.save)(image_name, image_file, save=False)
+
+
+    async def save_image_async(image_field, image_name, image_file):
+        await sync_to_async(image_field.save)(image_name, image_file, save=False)
+
     async def scrape_website(self, session, website, debug=False):
         two_word_brands = ['Never Summer', 'Lib Tech']
 
@@ -147,7 +165,7 @@ class EvoScraper(Scraper):
                     if not os.path.splitext(image_name)[1]:
                         image_name += '.jpg'
                     try:
-                        await snowboard.image.save(image_name, image_file, save=False)
+                        await EvoScraper.save_image_async(snowboard.image, image_name, image_file)
                     except Exception as e:
                         print(f"Error saving image: {e}")
             except Exception as e:
@@ -168,7 +186,7 @@ class EvoScraper(Scraper):
                     if not os.path.splitext(brand_image_name)[1]:
                         brand_image_name += '.jpg'
                     try:
-                        await snowboard.brand_image.save(brand_image_name, brand_image_file, save=False)
+                        await EvoScraper.save_image_async(snowboard.brand_image, brand_image_name, brand_image_file)
                     except Exception as e:
                         print(f"Error saving brand image: {e}")
             except Exception as e:
@@ -179,21 +197,24 @@ class EvoScraper(Scraper):
                 await snowboard.adelete()
                 print(f"{identifier.capitalize().replace('_', ' ')} Snowboard Deleted")
                 return
-
-        await snowboard.asave()
-        print("Snowboard Added!")
+        
+        await EvoScraper.save_snowboard(snowboard)
+        # await snowboard.asave()
+        # print("Snowboard Added!")
         if debug:
             print(f"Name: {name}")
             print(f"Brand: {brand}")
             print(f"Season: {season}")
             print(f"Profile: {data.get('profile', 'Unknown')}")
             print(f"Shape: {data.get('shape', 'Unknown')}")
-            print(f"Sizes: {sizes}")
+            # Extract the actual size values from the Size objects
+            size_values = [size.size for size in sizes]
+            print(f"Sizes: {size_values}")
             print(f"Rider: {data.get('rider', 'Unknown')}")
             print(f"Flex: {data.get('flex', 'Unknown')}")
             print(f"Description: {data.get('desc', 'No description available')}")
             print(f"Terrains: {terrains}")
-
+            
     async def get_links_from_user(self, session, num_links, url):
         try:
             with open('product_ids.json', 'r') as f:
@@ -216,6 +237,8 @@ class EvoScraper(Scraper):
                 if a_tag:
                     link = 'https://www.evo.com' + a_tag.get('href')
                     links.append(link)
+            else:
+                print(f"Skipping product ID: {product_id}")
             if len(links) >= num_links:
                 break
 
@@ -254,14 +277,16 @@ async def main():
     async with aiohttp.ClientSession() as session:
         evo_scraper = EvoScraper(config=None)
         num_links = int(input("Enter the number of links to scrape: "))
+        print(f"\n{num_links}")
         urls = await evo_scraper.get_links_from_user(session, num_links, "https://www.evo.com/shop/snowboard/snowboards")
-        
+
         start_time = time.time()
-        
+
         for url in urls:
-            await evo_scraper.scrape_website(session, url, debug=True)
-        
-        end_time = time.time()
+            await evo_scraper.scrape_website(session, url, debug=False)
+       
+        end_time = time.time() 
+               
         elapsed_time = end_time - start_time
         print(f"Scraping completed in {elapsed_time:.2f} seconds")
 

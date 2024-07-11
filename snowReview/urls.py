@@ -1,5 +1,5 @@
 from . import views
-from .views import snowboard_view
+from .views import snowboard_view, snowboard_generate
 from django.conf import settings
 from django.conf.urls.static import static
 from snowReview.admin import admin_site 
@@ -32,6 +32,8 @@ path('snowboard-list/', views.SnowboardListView.as_view(), name='snowboard-list'
 path('snowboard/<int:pk>/', views.SnowboardDetailView.as_view(), name='snowboard-detail'),
 path('snowboard/delete/<int:snowboard_id>/', views.delete_snowboard, name='delete-snowboard'),
 path('snowboard/add/', views.createSnowboard, name='snowboard-add'),
+path('snowboard/generate/', views.snowboard_generate, name='snowboard-generate'),
+
 
 # Guide
 path('guide/', views.GuideView.as_view(), name='guide'),
