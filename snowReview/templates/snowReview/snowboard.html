@@ -74,7 +74,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">  <!-- Start of row div -->
                 {% for snowboard in snowboards %}
                     <div class="col">
-                        <div class="card mb-4 bg-white" style="width: 18rem;">
+                        <div class="card mb-4 bg-white grow" style="width: 18rem;">
                             <div class="tooltip-container">
                                 <a href="{{ snowboard.get_absolute_url }}">
                                     <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">

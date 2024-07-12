@@ -82,6 +82,7 @@
     .tooltip-container {
         position: relative;
         display: inline-block;
+        cursor: pointer;
     }
 
     .tooltip-text {
@@ -97,7 +98,7 @@
         left: 90%;
         margin-left: -60px;
         opacity: 0;
-        transition: opacity 0.5s;
+        transition: visibility 0s, opacity 0.5s ease-in-out;
     }
 
     .tooltip-container:hover .tooltip-text {
@@ -157,14 +158,32 @@
       font-style: normal;
       font-size: 3.5em;
     }
+
     .title-link {
-      text-decoration: none;
-      color: inherit; 
+    text-decoration: none;
+    color: inherit;
+    display: flex;
     }
     .title-link:hover {
       text-decoration: none;
       color: inherit;
     }
+    .logo {
+        margin: 0;
+        padding: 0;
+        display: block;
+        padding-right: 10px;
+    }
+    .grow img{
+        transition: 0.5s ease;
+        }
+        
+        .grow img:hover{
+        -webkit-transform: scale(1.09);
+        -ms-transform: scale(1.09);
+        transform: scale(1.09);
+        transition: 0.5s ease;
+        }
     .user-info {
       display: flex;
       align-items: center;
@@ -237,9 +256,9 @@
 
   <a class="title-link" href="{% url 'home_view' %}">
     <!-- Add logo image before the title -->
-    <img src="{% static 'images/logo.png' %}">
+    <img src="{% static 'images/logo.png' %}" class="logo">
     <span class="title">TheRealPowGuide</span>
-  </a>
+</a>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1">
    <link rel="preconnect" href="https://fonts.googleapis.com">

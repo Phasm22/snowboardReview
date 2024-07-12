@@ -61,7 +61,19 @@
         margin:0;
         transition: background-color .4s ease;
     }
-
+    .size-bubble {
+        display: inline-block;
+        width: 30px; /* Adjust the width as needed */
+        height: 30px; /* Ensure the height is the same as the width */
+        line-height: 30px; /* Center the text vertically */
+        margin: 5px;
+        border: 1.5px solid orange;
+        border-radius: 50%;
+        background-color: white;
+        color: black;
+        font-size: 9px;
+        text-align: center;
+    }
     </style>   
     
     <!-- Back to top button -->
@@ -158,7 +170,7 @@
             </div>
             <div class="row row-cols-1 row-cols-md-3 g-4 col pl-3">  <!-- Start of row div -->
                 {% for snowboard in page_obj %}<div class="col">
-                        <div class="card mb-4 bg-white" style="width: 18rem;">
+                        <div class="card mb-4 bg-white grow" style="width: 18rem;">
                             <div class="tooltip-container">
                                 <a href="{{ snowboard.get_absolute_url }}">
                                     <img class="card-img-top snowboard-image" src="{{ snowboard.image.url }}" alt="{{ snowboard.name }}">
@@ -174,6 +186,11 @@
                                         {{ snowboard.name }}
                                     </a>
                                 </h5>
+                                <p class="card-text custom-font">
+                                    {% for size in snowboard.sizes.all %}
+                                        <span class="size-bubble">{{ size.size }}</span>
+                                    {% endfor %}
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -108,6 +108,7 @@ class EvoScraper(Scraper):
                     except Exception as e:
                         print(f"Error processing size: {e}")
 
+        # Sort the sizes
         sizes.sort(key=lambda size: size.size)
 
         image_element = soup.select_one(self.config['selectors']['image'])
@@ -202,7 +203,7 @@ class EvoScraper(Scraper):
         # await snowboard.asave()
         # print("Snowboard Added!")
         if debug:
-            print(f"Name: {name}")
+            await print(f"Name: {name}")
             print(f"Brand: {brand}")
             print(f"Season: {season}")
             print(f"Profile: {data.get('profile', 'Unknown')}")
@@ -273,17 +274,22 @@ class EvoScraper(Scraper):
                 'used_identifier': 'used',
                 'splitboard_identifier': 'splitboard'
             }
+
+
 async def main():
     async with aiohttp.ClientSession() as session:
         evo_scraper = EvoScraper(config=None)
         num_links = int(input("Enter the number of links to scrape: "))
         print(f"\n{num_links}")
-        urls = await evo_scraper.get_links_from_user(session, num_links, "https://www.evo.com/shop/snowboard/snowboards")
+        urls = await evo_scraper.get_links_from_user(session, num_links, "https://www.evo.com/shop/snowboard/snowboards/s_average-rating-desc/rpp_400")
 
         start_time = time.time()
 
-        for url in urls:
-            await evo_scraper.scrape_website(session, url, debug=False)
+        # Create a list of tasks for concurrent execution
+        tasks = [evo_scraper.scrape_website(session, url, debug=False) for url in urls]
+        
+        # Run the tasks concurrently
+        await asyncio.gather(*tasks)
        
         end_time = time.time() 
                
