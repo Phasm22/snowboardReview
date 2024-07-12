@@ -323,14 +323,20 @@ def snowboard_view(request):
             rider = str(form.cleaned_data['rider'])
             if rider:  # Only filter by rider if rider is not an empty string
                 snowboards = snowboards.filter(rider=rider)
+                # debug
+                print(f"Snowboards after rider filter: {snowboards}")
         if form.cleaned_data['terrain']:
             terrains = [str(terrain) for terrain in form.cleaned_data['terrain']]
             if terrains:  # Only filter by terrain if terrains is not an empty list
                 snowboards = snowboards.filter(terrain__name__in=terrains).distinct()
+                # debug
+                print(f"Snowboards after terrain filter: {snowboards}")
         if form.cleaned_data['shape']:
             shapes = [form.cleaned_data['shape']]  # Wrap the shape value in a list
             print(f"Shapes: {shapes}")  # Debug line
             if shapes:
+                if isinstance(shapes, str):
+                    shapes = [shapes]  # Ensure shapes is a list
                 snowboards = snowboards.filter(shape__in=shapes)
 
     items_per_page = request.GET.get('items_per_page', 12)
@@ -577,7 +583,7 @@ def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id) 
     if request.user.is_staff or request.user == comment.user:
         comment.delete()
-        messages.success(request, 'Comment Deleted')
+        messages.success(request, f'Comment deleted by {request.user.username}')
     return redirect('snowboard-detail', comment.snowboard.id)
 
 @reviewer_required
@@ -654,7 +660,7 @@ def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     if request.user.is_staff or request.user == review.reviewer.user:
         review.delete()
-        messages.success(request, 'Review Deleted')
+        messages.success(request, f'Review deleted by {request.user.username}')
     return redirect('snowboard-detail', review.snowboard.id)
 
 @reviewer_required

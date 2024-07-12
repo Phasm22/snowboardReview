@@ -1,5 +1,6 @@
 from django.forms import ModelForm
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 from .models import Snowboard, Terrain, Comment, Review, Size
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import PasswordResetForm
@@ -130,6 +131,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['comment_text']
         
+        
 class ReviewForm(forms.ModelForm):
     """
     A Django form for creating and updating Review instances.
@@ -169,6 +171,12 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['boardSize', 'date', 'conditions', 'snow24', 'snow7', 'riderHeight', 'riderWeight']
         labels = {
+            'snow24': 'Snowfall in the last 24 hours (inches)',
+            'snow7': 'Snowfall in the last 7 days (inches)',
+            'riderHeight': 'Rider Height (Inches)',
+            'riderWeight': 'Rider Weight (lbs)',
+            'boardSize': 'Board Size (cm)',
+        }
             'snow24': 'Snowfall in the last 24 hours (inches)',
             'snow7': 'Snowfall in the last 7 days (inches)',
             'riderHeight': 'Rider Height (Inches)',

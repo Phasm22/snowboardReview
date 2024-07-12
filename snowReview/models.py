@@ -32,6 +32,7 @@ class Review(models.Model):
     date = models.DateField(default='2024-01-01')
     conditions = models.CharField(max_length=200, default='Describe Conditions')
     riderHeight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    riderHeight = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     riderWeight = models.DecimalField(max_digits=3, decimal_places=0, default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
